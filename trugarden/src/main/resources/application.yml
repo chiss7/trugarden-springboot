@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    active: dev  # Load configurations from application-dev.yml
+springdoc:
+  default-produces-media-type: application/json
+
+server:
+  servlet:
+    context-path: /api/v1

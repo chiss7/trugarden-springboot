@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/trugarden_db
+    username: chis
+    password: chis
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update  # Hibernate will automatically update the database schema to match the entity classes. Only for dev
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true  # Hibernate will print the SQL statements in a more human-readable format
+    database: postgresql  # This helps Hibernate understand how to interact with the database correctly.
+    database-platform: org.hibernate.dialect.PostgreSQLDialect  # The dialect defines how Hibernate should communicate with the database, including SQL syntax and data types.
+
+  mail:
+    host: localhost
+    port: 1025
+    username: chis
+    password: chis
+    properties:
+      mail:
+        smtp:
+          auth: true
+          trust: "*"
+        starttls:
+          enable: true
+        connectiontimeout: 5000
+        timeout: 3000
+        writetimeout: 5000
+
+application:
+  mailing:
+    frontend:
+      activation-url: http://localhost:4200/activate-account
+
+server:
+  port: 8088
