@@ -43,8 +43,6 @@ public class AuthenticationService {
         User user = (User) auth.getPrincipal();
         claims.put("fullName", user.getFullName());
         var jwtToken = jwtService.generateToken(claims, user);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        return new AuthenticationResponse(jwtToken);
     }
 }
