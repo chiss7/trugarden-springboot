@@ -18,6 +18,7 @@ import java.util.List;
 @Setter
 @Builder
 @Entity
+@Table(name = "customer_order")
 @EntityListeners(AuditingEntityListener.class)
 public class Order {
     @Id
