@@ -1,5 +1,6 @@
 package com.chis.trugarden.auth;
 
+import com.chis.trugarden.exception.PasswordMismatchException;
 import com.chis.trugarden.role.Role;
 import com.chis.trugarden.role.RoleRepository;
 import com.chis.trugarden.security.JwtService;
@@ -27,6 +28,9 @@ public class AuthenticationService {
     public void register(RegistrationRequest request) {
         Role userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new IllegalStateException("Role USER was not initialized"));
+        if(!request.password().equals(request.confirmPassword())) {
+            throw new PasswordMismatchException("Passwords do not match");
+        }
         User user = mapper.toUser(request, userRole);
         userRepository.save(user);
         // todo: send validation email
