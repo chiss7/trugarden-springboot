@@ -1,6 +1,9 @@
 package com.chis.trugarden.handler;
 
+import com.chis.trugarden.exception.ExpiredTokenException;
+import com.chis.trugarden.exception.InvalidTokenException;
 import com.chis.trugarden.exception.PasswordMismatchException;
+import com.chis.trugarden.exception.UserAlreadyEnabledException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -63,6 +66,45 @@ public class GlobalExceptionHandler {
                         ExceptionResponse.builder()
                                 .businessErrorCode(BusinessErrorCodes.PASSWORDS_DO_NOT_MATCH.getCode())
                                 .businessErrorDescription(BusinessErrorCodes.PASSWORDS_DO_NOT_MATCH.getDescription())
+                                .error(exp.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ExceptionResponse> handleException(InvalidTokenException exp) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ExceptionResponse.builder()
+                                .businessErrorCode(BusinessErrorCodes.INVALID_TOKEN.getCode())
+                                .businessErrorDescription(BusinessErrorCodes.INVALID_TOKEN.getDescription())
+                                .error(exp.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(ExpiredTokenException.class)
+    public ResponseEntity<ExceptionResponse> handleException(ExpiredTokenException exp) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ExceptionResponse.builder()
+                                .businessErrorCode(BusinessErrorCodes.EXPIRED_TOKEN.getCode())
+                                .businessErrorDescription(BusinessErrorCodes.EXPIRED_TOKEN.getDescription())
+                                .error(exp.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(UserAlreadyEnabledException.class)
+    public ResponseEntity<ExceptionResponse> handleException(UserAlreadyEnabledException exp) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        ExceptionResponse.builder()
+                                .businessErrorCode(BusinessErrorCodes.ACCOUNT_ALREADY_ENABLED.getCode())
+                                .businessErrorDescription(BusinessErrorCodes.ACCOUNT_ALREADY_ENABLED.getDescription())
                                 .error(exp.getMessage())
                                 .build()
                 );

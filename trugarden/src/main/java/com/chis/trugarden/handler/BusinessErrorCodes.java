@@ -10,7 +10,10 @@ public enum BusinessErrorCodes {
     PASSWORDS_DO_NOT_MATCH(301, HttpStatus.BAD_REQUEST, "Passwords do not match"),
     ACCOUNT_LOCKED(302, HttpStatus.FORBIDDEN, "User account is locked"),
     ACCOUNT_DISABLED(303, HttpStatus.FORBIDDEN, "User account is disabled"),
-    BAD_CREDENTIALS(304, HttpStatus.FORBIDDEN, "Email and/or password is incorrect."),
+    BAD_CREDENTIALS(304, HttpStatus.FORBIDDEN, "Email and/or password is incorrect"),
+    INVALID_TOKEN(305, HttpStatus.BAD_REQUEST, "Invalid token"),
+    EXPIRED_TOKEN(306, HttpStatus.BAD_REQUEST, "Expired token"),
+    ACCOUNT_ALREADY_ENABLED(307, HttpStatus.BAD_REQUEST, "Account already enabled")
     ;
     private final int code;
     private final String description;
