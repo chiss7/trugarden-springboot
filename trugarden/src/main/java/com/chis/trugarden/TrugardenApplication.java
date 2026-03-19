@@ -1,7 +1,7 @@
 package com.chis.trugarden;
 
-import com.chis.trugarden.role.Role;
-import com.chis.trugarden.role.RoleRepository;
+import com.chis.trugarden.persistence.role.entities.RoleEntity;
+import com.chis.trugarden.persistence.role.RoleJpaRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,10 +19,10 @@ public class TrugardenApplication {
 	}
 
 	@Bean
-	public CommandLineRunner runner(RoleRepository roleRepository) {
+	public CommandLineRunner runner(RoleJpaRepository roleJpaRepository) {
 		return args -> {
-			if(roleRepository.findByName("USER").isEmpty()) {
-				roleRepository.save(Role.builder().name("USER").build());
+			if(roleJpaRepository.findByName("USER").isEmpty()) {
+				roleJpaRepository.save(RoleEntity.builder().name("USER").build());
 			}
 		};
 	}
