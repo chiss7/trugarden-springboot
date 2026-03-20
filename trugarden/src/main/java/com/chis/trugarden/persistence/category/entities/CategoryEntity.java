@@ -19,9 +19,9 @@ public class CategoryEntity {
 
     @NotNull
     @Column(unique = true)
-    private String categoryId;
+    private String categoryCode;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private CategoryEntity parentCategory;
 
     @NotNull

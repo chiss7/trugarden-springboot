@@ -26,12 +26,12 @@ public class ProductEntity extends BaseEntity {
     private String description;
 
     @ElementCollection
-    private List<String> image = new java.util.ArrayList<>();
+    private List<String> images = new java.util.ArrayList<>();
 
     private BigDecimal mrpPrice;
     private BigDecimal sellingPrice;
-    private int discountPercentage;
-    private Double stock;
+    private double discountPercentage;
+    private double stock;
     private boolean hasIva;
     private int ivaPercentage;
     private int numRatings;

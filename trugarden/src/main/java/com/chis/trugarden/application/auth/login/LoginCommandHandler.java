@@ -1,7 +1,6 @@
 package com.chis.trugarden.application.auth.login;
 
 import com.chis.trugarden.persistence.user.entities.UserEntity;
-import com.chis.trugarden.shared.result.Error;
 import com.chis.trugarden.shared.result.Result;
 import com.chis.trugarden.shared.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -22,22 +21,17 @@ public class LoginCommandHandler {
 
     @CommandHandler
     public Result<LoginResult> handle(LoginCommand command) {
-        try {
-            var auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            command.email(),
-                            command.password()
-                    )
-            );
-            var claims = new HashMap<String, Object>();
-            UserEntity userEntity = (UserEntity) auth.getPrincipal();
-            claims.put("fullName", userEntity.getFullName());
-            var jwtToken = jwtService.generateToken(claims, userEntity);
-            log.info("Login successful for email {}", command.email());
-            return Result.success(new LoginResult(jwtToken));
-        } catch (Exception e) {
-            log.error("Error during login for email {}: {}", command.email(), e.getMessage());
-            return Result.failure(Error.failure("LOGIN_ERROR","Ha ocurrido un error durante el inicio de sesión. Vuelve a intentarlo más tarde."));
-        }
+        var auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        command.email(),
+                        command.password()
+                )
+        );
+        var claims = new HashMap<String, Object>();
+        UserEntity userEntity = (UserEntity) auth.getPrincipal();
+        claims.put("fullName", userEntity.getFullName());
+        var jwtToken = jwtService.generateToken(claims, userEntity);
+        log.info("Login successful for email {}", command.email());
+        return Result.success(new LoginResult(jwtToken));
     }
 }
