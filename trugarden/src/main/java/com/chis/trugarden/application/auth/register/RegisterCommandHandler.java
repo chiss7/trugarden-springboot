@@ -8,6 +8,7 @@ import com.chis.trugarden.persistence.user.UserJpaRepository;
 import com.chis.trugarden.persistence.user.UserMapper;
 import com.chis.trugarden.persistence.user.entities.TokenEntity;
 import com.chis.trugarden.persistence.user.entities.UserEntity;
+import com.chis.trugarden.shared.enums.Roles;
 import com.chis.trugarden.shared.exception.PasswordMismatchException;
 import com.chis.trugarden.shared.result.Error;
 import com.chis.trugarden.shared.result.Result;
@@ -36,8 +37,8 @@ public class RegisterCommandHandler {
     @CommandHandler
     public Result<Long> handle(RegisterCommand command) {
         try {
-            RoleEntity userRoleEntity = roleJpaRepository.findByName("USER")
-                    .orElseThrow(() -> new IllegalStateException("Role USER was not initialized"));
+            RoleEntity userRoleEntity = roleJpaRepository.findByName(Roles.ROLE_CUSTOMER)
+                    .orElseThrow(() -> new IllegalStateException("Role Customer was not initialized"));
             if(!command.password().equals(command.confirmPassword())) {
                 throw new PasswordMismatchException("Passwords do not match");
             }

@@ -1,7 +1,9 @@
 package com.chis.trugarden.persistence.user.entities;
 
+import com.chis.trugarden.persistence.coupon.entities.CouponEntity;
 import com.chis.trugarden.persistence.order.entities.OrderEntity;
 import com.chis.trugarden.persistence.role.entities.RoleEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -16,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -47,8 +50,12 @@ public class UserEntity implements UserDetails, Principal {
     @ManyToMany(fetch = FetchType.EAGER) // when the entity is loaded, the roles list will also be loaded immediately
     private List<RoleEntity> roles;
 
-    @OneToMany(mappedBy = "customer")
-    private List<OrderEntity> orderEntities;
+    @OneToMany(mappedBy = "user")
+    private List<OrderEntity> orders;
+
+    @OneToMany
+    @JsonIgnore
+    private Set<CouponEntity> usedCoupons = new java.util.HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -66,7 +73,7 @@ public class UserEntity implements UserDetails, Principal {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles
                 .stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
     }
 

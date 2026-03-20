@@ -1,6 +1,7 @@
 package com.chis.trugarden.persistence.role.entities;
 
 import com.chis.trugarden.persistence.user.entities.UserEntity;
+import com.chis.trugarden.shared.enums.Roles;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,8 +24,10 @@ public class RoleEntity {
     @Id
     @GeneratedValue
     private Long id;
+
+    @Enumerated(EnumType.STRING)
     @Column(unique = true)
-    private String name;
+    private Roles name;
 
     @ManyToMany(mappedBy = "roles") // mappedBy = same variable 'roles' in User class
     @JsonIgnore // ignore the users field when serializing the object into JSON or deserializing JSON into the object.

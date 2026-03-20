@@ -2,7 +2,6 @@ package com.chis.trugarden.persistence.product.entities;
 
 import com.chis.trugarden.persistence.category.entities.CategoryEntity;
 import com.chis.trugarden.shared.entity.BaseEntity;
-import com.chis.trugarden.persistence.order.entities.OrderLineEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,15 +24,22 @@ public class ProductEntity extends BaseEntity {
     @Column(unique = true)
     private String slug;
     private String description;
-    private String image;
-    private BigDecimal price;
+
+    @ElementCollection
+    private List<String> image = new java.util.ArrayList<>();
+
+    private BigDecimal mrpPrice;
+    private BigDecimal sellingPrice;
+    private int discountPercentage;
     private Double stock;
     private boolean hasIva;
+    private int ivaPercentage;
+    private int numRatings;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
-    @OneToMany(mappedBy = "product")
-    private List<OrderLineEntity> orderLineEntities;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ReviewEntity> reviews = new java.util.ArrayList<>();
 }

@@ -2,6 +2,7 @@ package com.chis.trugarden;
 
 import com.chis.trugarden.persistence.role.entities.RoleEntity;
 import com.chis.trugarden.persistence.role.RoleJpaRepository;
+import com.chis.trugarden.shared.enums.Roles;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,8 +22,8 @@ public class TrugardenApplication {
 	@Bean
 	public CommandLineRunner runner(RoleJpaRepository roleJpaRepository) {
 		return args -> {
-			if(roleJpaRepository.findByName("USER").isEmpty()) {
-				roleJpaRepository.save(RoleEntity.builder().name("USER").build());
+			if(roleJpaRepository.findByName(Roles.ROLE_CUSTOMER).isEmpty()) {
+				roleJpaRepository.save(RoleEntity.builder().name(Roles.ROLE_CUSTOMER).build());
 			}
 		};
 	}

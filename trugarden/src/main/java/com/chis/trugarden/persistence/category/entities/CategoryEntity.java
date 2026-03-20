@@ -1,10 +1,8 @@
 package com.chis.trugarden.persistence.category.entities;
 
-import com.chis.trugarden.persistence.product.entities.ProductEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,8 +16,14 @@ public class CategoryEntity {
     @GeneratedValue
     private Long id;
     private String name;
-    private String description;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE)
-    private List<ProductEntity> productEntities;
+    @NotNull
+    @Column(unique = true)
+    private String categoryId;
+
+    @ManyToOne
+    private CategoryEntity parentCategory;
+
+    @NotNull
+    private Integer level;
 }

@@ -1,6 +1,9 @@
 package com.chis.trugarden.persistence.order.entities;
 
+import com.chis.trugarden.persistence.user.entities.AddressEntity;
 import com.chis.trugarden.persistence.user.entities.UserEntity;
+import com.chis.trugarden.shared.enums.OrderStatus;
+import com.chis.trugarden.shared.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -17,20 +20,39 @@ import java.util.List;
 @Setter
 @Builder
 @Entity
-@Table(name = "customer_order")
+@Table(name = "orders")
 @EntityListeners(AuditingEntityListener.class)
 public class OrderEntity {
     @Id
     @GeneratedValue
     private Long id;
-    private BigDecimal totalAmount;
 
-    @OneToMany(mappedBy = "order")
-    private List<OrderLineEntity> orderLineEntities;
+    private String orderId;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private UserEntity customer;
+    private UserEntity user;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<OrderItemEntity> orderItems = new java.util.ArrayList<>();
+
+    @ManyToOne
+    private AddressEntity shippingAddress;
+
+    @Embedded
+    private PaymentDetailsEntity paymentDetails = new PaymentDetailsEntity();
+
+    private BigDecimal totalMrpPrice;
+    private BigDecimal totalSellingPrice;
+    private int totalDiscount;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+
+    private LocalDateTime orderDate;
+    private LocalDateTime deliveryDate;
 
     @CreatedDate
     @Column(updatable = false, nullable = false)
