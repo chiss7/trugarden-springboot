@@ -1,88 +1,64 @@
 package com.chis.trugarden.application.auth.register;
 
-import com.chis.trugarden.application.email.EmailService;
-import com.chis.trugarden.persistence.role.RoleJpaRepository;
-import com.chis.trugarden.persistence.role.entities.RoleEntity;
-import com.chis.trugarden.persistence.user.TokenJpaRepository;
-import com.chis.trugarden.persistence.user.UserJpaRepository;
-import com.chis.trugarden.persistence.user.UserMapper;
-import com.chis.trugarden.persistence.user.entities.TokenEntity;
-import com.chis.trugarden.persistence.user.entities.UserEntity;
+import com.chis.trugarden.application.auth.service.SendValidationTokenService;
+import com.chis.trugarden.application.role.abstractions.RoleRepository;
+import com.chis.trugarden.application.user.abstractions.UserRepository;
+import com.chis.trugarden.domain.role.Role;
+import com.chis.trugarden.domain.role.RoleErrors;
+import com.chis.trugarden.domain.user.*;
 import com.chis.trugarden.shared.enums.Roles;
 import com.chis.trugarden.shared.exception.PasswordMismatchException;
-import com.chis.trugarden.shared.result.Error;
 import com.chis.trugarden.shared.result.Result;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class RegisterCommandHandler {
-    private final RoleJpaRepository roleJpaRepository;
-    private final UserJpaRepository userJpaRepository;
-    private final TokenJpaRepository tokenJpaRepository;
-    private final EmailService emailService;
-    private final UserMapper mapper;
-
-    @Value("${application.mailing.frontend.activation-url}")
-    private String activationUrl;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final SendValidationTokenService sendValidationTokenService;
 
     @CommandHandler
+    @Transactional
     public Result<Long> handle(RegisterCommand command) {
-        try {
-            RoleEntity userRoleEntity = roleJpaRepository.findByName(Roles.ROLE_CUSTOMER)
-                    .orElseThrow(() -> new IllegalStateException("Role Customer was not initialized"));
-            if(!command.password().equals(command.confirmPassword())) {
-                throw new PasswordMismatchException("Passwords do not match");
-            }
-            UserEntity userEntity = mapper.toUser(command, userRoleEntity);
-            UserEntity savedUser = userJpaRepository.save(userEntity);
-            sendValidationEmail(userEntity);
-            return Result.success(savedUser.getId());
-        } catch (Exception e) {
-            log.error("Error during register user {}: {}", command.email(), e.getMessage());
-            return Result.failure(Error.failure("REGISTER_ERROR","Ha ocurrido un error durante el registro. Vuelve a intentarlo más tarde."));
+        log.info("Creating new customer with email {}", command.email());
+        Optional<Role> roleOpt = roleRepository.findByName(Roles.ROLE_CUSTOMER);
+        if (roleOpt.isEmpty()) {
+            return Result.failure(RoleErrors.notFound(Roles.ROLE_CUSTOMER));
         }
-    }
 
-    private void sendValidationEmail(UserEntity userEntity) {
-        String newToken = generateAndSaveActivationToken(userEntity);
-        emailService.sendActivateAccountEmail(
-                userEntity.getEmail(),
-                userEntity.getFullName(),
-                activationUrl,
-                newToken
+        Optional<User> existingUserOpt = userRepository.findByEmail(command.email());
+        if (existingUserOpt.isPresent()) {
+            log.info("User with email {} already exists", command.email());
+            return Result.failure(UserErrors.alreadyExists(command.email()));
+        }
+
+        if(!command.password().equals(command.confirmPassword())) {
+            throw new PasswordMismatchException("Passwords do not match");
+        }
+
+        User user = User.ofNew(
+                command.firstname(),
+                command.lastname(),
+                null,
+                null,
+                Email.of(command.email()),
+                Password.ofHashed(passwordEncoder.encode(command.password())),
+                Set.of(roleOpt.get())
         );
-    }
 
-    private String generateAndSaveActivationToken(UserEntity userEntity) {
-        String generatedToken = generateActivationToken(6);
-        TokenEntity tokenEntity = TokenEntity.builder()
-                .token(generatedToken)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(15))
-                .userEntity(userEntity)
-                .build();
-        tokenJpaRepository.save(tokenEntity);
-        return generatedToken;
-    }
-
-    private String generateActivationToken(int length) {
-        String characters = "0123456789";
-        StringBuilder codeBuilder = new StringBuilder();
-        // SecureRandom will make sure that the generated random value is cryptographically secure
-        SecureRandom secureRandom = new SecureRandom();
-        for (int i = 0; i < length; i++) {
-            int randomIndex = secureRandom.nextInt(characters.length()); // 0..9
-            codeBuilder.append(characters.charAt(randomIndex));
-        }
-        return codeBuilder.toString();
+        User savedUser = userRepository.save(user);
+        sendValidationTokenService.sendValidationEmail(savedUser);
+        return Result.success(savedUser.getId());
     }
 }

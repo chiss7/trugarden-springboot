@@ -49,7 +49,6 @@ public class CreateProductCommandHandler {
                 command.stock(),
                 category
         );
-        Product saved = productRepository.save(product);
-        throw new RuntimeException("Simulación de error para probar la transacción");
+        return productRepository.save(product);
     }
 }

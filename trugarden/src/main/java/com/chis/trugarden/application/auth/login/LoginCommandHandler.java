@@ -1,5 +1,6 @@
 package com.chis.trugarden.application.auth.login;
 
+import com.chis.trugarden.infrastructure.security.CustomUserDetails;
 import com.chis.trugarden.persistence.user.entities.UserEntity;
 import com.chis.trugarden.shared.result.Result;
 import com.chis.trugarden.shared.security.JwtService;
@@ -28,9 +29,9 @@ public class LoginCommandHandler {
                 )
         );
         var claims = new HashMap<String, Object>();
-        UserEntity userEntity = (UserEntity) auth.getPrincipal();
-        claims.put("fullName", userEntity.getFullName());
-        var jwtToken = jwtService.generateToken(claims, userEntity);
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        claims.put("fullName", userDetails.getFullName());
+        var jwtToken = jwtService.generateToken(claims, userDetails);
         log.info("Login successful for email {}", command.email());
         return Result.success(new LoginResult(jwtToken));
     }

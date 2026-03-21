@@ -1,6 +1,6 @@
 package com.chis.trugarden.shared.config;
 
-import com.chis.trugarden.persistence.user.entities.UserEntity;
+import com.chis.trugarden.infrastructure.security.CustomUserDetails;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,7 +16,7 @@ public class ApplicationAuditAware implements AuditorAware<Long> {
         if(authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
             return Optional.empty();
         }
-        UserEntity userEntityPrincipal = (UserEntity) authentication.getPrincipal();
-        return Optional.ofNullable(userEntityPrincipal.getId());
+        CustomUserDetails userPrincipal = (CustomUserDetails) authentication.getPrincipal();
+        return Optional.ofNullable(userPrincipal.getId());
     }
 }

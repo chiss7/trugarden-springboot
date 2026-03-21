@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "_user")
 @EntityListeners(AuditingEntityListener.class)
-public class UserEntity implements UserDetails, Principal {
+public class UserEntity  {
     @Id
     @GeneratedValue
     private Long id;
@@ -63,51 +63,6 @@ public class UserEntity implements UserDetails, Principal {
     @LastModifiedDate
     @Column(insertable = false)
     private LocalDateTime lastModifiedDate;
-
-    @Override
-    public String getName() {
-        return email; // this is the unique identifier of our user
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles
-                .stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    // Returns true if the user's account is valid (ie non-expired), false if no longer valid (ie expired)
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired(); // true
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return !accountLocked;
-    }
-
-    // Indicates whether the user's credentials (password) has expired. Expired credentials prevent authentication.
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired(); // true
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
 
     public String getFullName() {
         return this.firstname + " " + this.lastname;
