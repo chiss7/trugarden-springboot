@@ -13,9 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -42,25 +40,17 @@ public class CartService {
     public Result<Cart> createCart(String sessionId, Product product, int quantity) {
         boolean isAuthenticated = AuthenticationHelper.isAuthenticated();
 
-        CartItem newCartItem = CartItem.ofNew(
+        CartItem newCartItem = CartItem.newFromProduct(
                 null,
                 product,
                 quantity,
-                product.getMrpPrice(),
-                product.getSellingPrice(),
                 isAuthenticated ? AuthenticationHelper.getCurrentUserId() : null
         );
 
-        Cart newCart = Cart.ofNew(
+        Cart newCart = Cart.empty(
                 isAuthenticated ? AuthenticationHelper.getCurrentUser().getDomainUser() : null,
                 isAuthenticated ? null : sessionId,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                0,
-                0,
-                null,
-                CartStatus.ACTIVE,
-                Set.of()
+                CartStatus.ACTIVE
         );
 
         Cart toSave = newCart.addItem(newCartItem);
@@ -81,12 +71,10 @@ public class CartService {
         if (cart.hasItem(product.getId())) {
             updatedCart = cart.updateItemQuantity(product.getId(), quantity);
         } else {
-            CartItem newCartItem = CartItem.ofNew(
+            CartItem newCartItem = CartItem.newFromProduct(
                     cart.getId(),
                     product,
                     quantity,
-                    product.getMrpPrice(),
-                    product.getSellingPrice(),
                     cart.getUser() != null ? cart.getUser().getId() : null
             );
             updatedCart = cart.addItem(newCartItem);
@@ -96,16 +84,6 @@ public class CartService {
     }
 
     private Cart getNotCreatedCart() {
-        return Cart.ofNew(
-                null,
-                null,
-                BigDecimal.ZERO,
-                BigDecimal.ZERO,
-                0,
-                0,
-                null,
-                CartStatus.NOT_CREATED,
-                Set.of()
-        );
+        return Cart.empty(null, null, CartStatus.NOT_CREATED);
     }
 }

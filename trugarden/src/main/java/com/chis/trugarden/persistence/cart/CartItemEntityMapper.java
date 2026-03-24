@@ -18,8 +18,11 @@ public interface CartItemEntityMapper {
         cartItemEntity.setId(cartItem.getId());
         cartItemEntity.setProduct(productEntityMapper.toEntity(cartItem.getProduct()));
         cartItemEntity.setQuantity(cartItem.getQuantity());
-        cartItemEntity.setMrpPrice(cartItem.getMrpPrice());
-        cartItemEntity.setSellingPrice(cartItem.getSellingPrice());
+        cartItemEntity.setOriginalPrice(cartItem.getOriginalPrice());
+        cartItemEntity.setUnitPrice(cartItem.getUnitPrice());
+        cartItemEntity.setSubtotal(cartItem.getSubtotal());
+        cartItemEntity.setTaxPercentage(cartItem.getTaxPercentage());
+        cartItemEntity.setTaxAmount(cartItem.getTaxAmount());
         cartItemEntity.setUserId(cartItem.getUserId());
         return cartItemEntity;
     }
@@ -34,8 +37,9 @@ public interface CartItemEntityMapper {
                 cartItemEntity.getCart().getId(),
                 productEntityMapper.toDomain(cartItemEntity.getProduct()),
                 cartItemEntity.getQuantity(),
-                cartItemEntity.getMrpPrice(),
-                cartItemEntity.getSellingPrice(),
+                cartItemEntity.getOriginalPrice(),
+                cartItemEntity.getUnitPrice(),
+                cartItemEntity.getTaxPercentage(),
                 cartItemEntity.getUserId()
         );
     }

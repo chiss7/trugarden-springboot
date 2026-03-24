@@ -6,10 +6,13 @@ import java.util.List;
 public record GetUserCartResponse(
         Long cartId,
         String sessionId,
-        BigDecimal totalPrice,
-        BigDecimal totalMrpPrice,
+        BigDecimal subtotal,
+        BigDecimal totalTax,
+        BigDecimal subtotalWithTax,
+        BigDecimal discountPercentage,
+        BigDecimal couponDiscountAmount,
+        BigDecimal grandTotal,
         int quantity,
-        int discount,
         String couponCode,
         List<CartItemResponse> cartItems,
         boolean isAuthenticated
@@ -21,8 +24,13 @@ public record GetUserCartResponse(
             String productSlug,
             String productImage,
             int quantity,
-            BigDecimal mrpPrice,
-            BigDecimal sellingPrice,
+            BigDecimal originalPrice,
+            BigDecimal unitPrice,
+            BigDecimal unitPriceWithTax,
+            BigDecimal subtotal,
+            BigDecimal subtotalWithTax,
+            int taxPercentage,
+            BigDecimal taxAmount,
             double discountPercentage,
             double stock
     ) {

@@ -41,9 +41,12 @@ public class OrderEntity {
     @Embedded
     private PaymentDetailsEntity paymentDetails = new PaymentDetailsEntity();
 
-    private BigDecimal totalMrpPrice;
-    private BigDecimal totalSellingPrice;
-    private int totalDiscount;
+    private BigDecimal totalOriginalPrice;
+    private BigDecimal subtotal;
+    private BigDecimal totalTax;
+    private BigDecimal discountPercentage;
+    private BigDecimal couponDiscountAmount;
+    private BigDecimal grandTotal;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;

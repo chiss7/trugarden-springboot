@@ -5,6 +5,7 @@ import com.chis.trugarden.application.product.abstractions.ProductRepository;
 import com.chis.trugarden.domain.category.Category;
 import com.chis.trugarden.domain.category.CategoryErrors;
 import com.chis.trugarden.domain.product.Product;
+import com.chis.trugarden.domain.product.ProductErrors;
 import com.chis.trugarden.shared.result.Result;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,11 @@ public class CreateProductCommandHandler {
             return Result.failure(CategoryErrors.notFound(command.category()));
         }
 
+        Optional<Product> existingProductOpt = productRepository.findBySlug(command.slug());
+        if (existingProductOpt.isPresent()) {
+            return Result.failure(ProductErrors.slugAlreadyExists(command.slug()));
+        }
+
         Product savedProduct = saveProduct(command, categoryOpt.get());
         log.info("Producto {} creado exitosamente.", savedProduct.getId());
         return Result.success(savedProduct.getId());
@@ -40,8 +46,8 @@ public class CreateProductCommandHandler {
                 command.name(),
                 command.slug(),
                 command.description(),
-                command.mrpPrice(),
-                command.sellingPrice(),
+                command.originalPrice(),
+                command.unitPrice(),
                 command.imageUrls(),
                 command.hasIva(),
                 command.ivaPercentage(),

@@ -4,6 +4,7 @@ import com.chis.trugarden.domain.user.User;
 import com.chis.trugarden.shared.enums.CartStatus;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.Set;
 import java.util.HashSet;
@@ -13,10 +14,12 @@ public class Cart {
     private final Long id;
     private final User user;
     private final String sessionId;
-    private final BigDecimal totalPrice;
-    private final BigDecimal totalMrpPrice;
+    private final BigDecimal subtotal;
+    private final BigDecimal totalTax;
+    private final BigDecimal discountPercentage;
+    private final BigDecimal couponDiscountAmount;
+    private final BigDecimal grandTotal;
     private final int quantity;
-    private final int discount;
     private final String couponCode;
     private final CartStatus status;
     private final Set<CartItem> cartItems;
@@ -25,10 +28,12 @@ public class Cart {
             Long id,
             User user,
             String sessionId,
-            BigDecimal totalPrice,
-            BigDecimal totalMrpPrice,
+            BigDecimal subtotal,
+            BigDecimal totalTax,
+            BigDecimal discountPercentage,
+            BigDecimal couponDiscountAmount,
+            BigDecimal grandTotal,
             int quantity,
-            int discount,
             String couponCode,
             CartStatus status,
             Set<CartItem> cartItems
@@ -36,10 +41,12 @@ public class Cart {
         this.id = id;
         this.user = user;
         this.sessionId = sessionId;
-        this.totalPrice = Objects.requireNonNull(totalPrice, "totalPrice cannot be null");
-        this.totalMrpPrice = Objects.requireNonNull(totalMrpPrice, "totalMrpPrice cannot be null");
+        this.subtotal = Objects.requireNonNull(subtotal, "subtotal cannot be null");
+        this.totalTax = Objects.requireNonNull(totalTax, "totalTax cannot be null");
+        this.discountPercentage = Objects.requireNonNull(discountPercentage, "discountPercentage cannot be null");
+        this.couponDiscountAmount = Objects.requireNonNull(couponDiscountAmount, "couponDiscountAmount cannot be null");
+        this.grandTotal = Objects.requireNonNull(grandTotal, "grandTotal cannot be null");
         this.quantity = quantity;
-        this.discount = discount;
         this.couponCode = couponCode;
         this.status = status;
         this.cartItems = cartItems;
@@ -49,10 +56,12 @@ public class Cart {
             Long id,
             User user,
             String sessionId,
-            BigDecimal totalPrice,
-            BigDecimal totalMrpPrice,
+            BigDecimal subtotal,
+            BigDecimal totalTax,
+            BigDecimal discountPercentage,
+            BigDecimal couponDiscountAmount,
+            BigDecimal grandTotal,
             int quantity,
-            int discount,
             String couponCode,
             CartStatus status,
             Set<CartItem> cartItems
@@ -61,10 +70,12 @@ public class Cart {
                 id,
                 user,
                 sessionId,
-                totalPrice,
-                totalMrpPrice,
+                subtotal,
+                totalTax,
+                discountPercentage,
+                couponDiscountAmount,
+                grandTotal,
                 quantity,
-                discount,
                 couponCode,
                 status,
                 cartItems
@@ -74,10 +85,12 @@ public class Cart {
     public static Cart ofNew(
             User user,
             String sessionId,
-            BigDecimal totalPrice,
-            BigDecimal totalMrpPrice,
+            BigDecimal subtotal,
+            BigDecimal totalTax,
+            BigDecimal discountPercentage,
+            BigDecimal couponDiscountAmount,
+            BigDecimal grandTotal,
             int quantity,
-            int discount,
             String couponCode,
             CartStatus status,
             Set<CartItem> cartItems
@@ -86,13 +99,35 @@ public class Cart {
                 null,
                 user,
                 sessionId,
-                totalPrice,
-                totalMrpPrice,
+                subtotal,
+                totalTax,
+                discountPercentage,
+                couponDiscountAmount,
+                grandTotal,
                 quantity,
-                discount,
                 couponCode,
                 status,
                 cartItems
+        );
+    }
+
+    /**
+     * Creates an empty cart with zero values.
+     */
+    public static Cart empty(User user, String sessionId, CartStatus status) {
+        return new Cart(
+                null,
+                user,
+                sessionId,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                0,
+                null,
+                status,
+                new HashSet<>()
         );
     }
 
@@ -108,20 +143,28 @@ public class Cart {
         return sessionId;
     }
 
-    public BigDecimal getTotalPrice() {
-        return totalPrice;
+    public BigDecimal getSubtotal() {
+        return subtotal;
     }
 
-    public BigDecimal getTotalMrpPrice() {
-        return totalMrpPrice;
+    public BigDecimal getTotalTax() {
+        return totalTax;
+    }
+
+    public BigDecimal getDiscountPercentage() {
+        return discountPercentage;
+    }
+
+    public BigDecimal getCouponDiscountAmount() {
+        return couponDiscountAmount;
+    }
+
+    public BigDecimal getGrandTotal() {
+        return grandTotal;
     }
 
     public int getQuantity() {
         return quantity;
-    }
-
-    public int getDiscount() {
-        return discount;
     }
 
     public String getCouponCode() {
@@ -139,48 +182,57 @@ public class Cart {
     public Cart addItem(CartItem item) {
         Set<CartItem> newItems = new HashSet<>(cartItems);
         newItems.add(item);
-        return withCartItems(newItems);
+        return recalculate(newItems);
     }
 
     public Cart removeItem(Long productId) {
         Set<CartItem> newItems = cartItems.stream()
                 .filter(item -> !item.getProduct().getId().equals(productId))
                 .collect(Collectors.toSet());
-        return withCartItems(newItems);
+        return recalculate(newItems);
     }
 
-    public Cart updateItemQuantity(Long productId, int quantity) {
-        if (quantity <= 0) {
+    public Cart updateItemQuantity(Long productId, int newQuantity) {
+        if (newQuantity <= 0) {
             return removeItem(productId);
         }
         Set<CartItem> newItems = cartItems.stream()
                 .map(item -> item.getProduct().getId().equals(productId)
-                        ? CartItem.of(
-                            item.getId(),
-                            item.getCartId(),
-                            item.getProduct(),
-                            quantity,
-                            item.getMrpPrice(),
-                            item.getSellingPrice(),
-                            item.getUserId())
+                        ? item.withQuantity(newQuantity)
                         : item)
                 .collect(Collectors.toSet());
-        return withCartItems(newItems);
+        return recalculate(newItems);
     }
 
     public Cart clear() {
-        return withCartItems(new HashSet<>());
+        return recalculate(new HashSet<>());
     }
 
-    public BigDecimal getTotalSellingPrice() {
+    /**
+     * Calculates the total subtotal (base amount without tax) from all cart items.
+     */
+    public BigDecimal getCalculatedSubtotal() {
         return cartItems.stream()
-                .map(item -> item.getSellingPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(CartItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal getCalculatedTotalMrpPrice() {
+    /**
+     * Calculates the total amount with tax from all cart items.
+     * Since subtotal is the base amount (without tax), this returns subtotal + totalTax.
+     */
+    public BigDecimal getTotalWithTax() {
         return cartItems.stream()
-                .map(item -> item.getMrpPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(CartItem::getTotalWithTax)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    /**
+     * Calculates the total tax to add to the subtotal from all cart items.
+     */
+    public BigDecimal getCalculatedTotalTax() {
+        return cartItems.stream()
+                .map(CartItem::getTaxAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -190,23 +242,30 @@ public class Cart {
                 .sum();
     }
 
-    public int getTotalDiscount() {
-        return getCalculatedTotalMrpPrice().subtract(getTotalSellingPrice()).intValue();
-    }
+    /**
+     * Applies a coupon with the given percentage discount.
+     * The coupon is applied to the subtotal (base amount before tax).
+     */
+    public Cart applyCoupon(String code, BigDecimal percentage) {
+        BigDecimal newDiscountPercentage = Objects.requireNonNull(percentage, "percentage cannot be null");
+        BigDecimal newCouponDiscountAmount = subtotal.multiply(newDiscountPercentage)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        
+        // Recalculate tax on the discounted base
+        BigDecimal discountedBase = subtotal.subtract(newCouponDiscountAmount);
+        BigDecimal adjustedTax = calculateTaxOnBase(discountedBase);
+        BigDecimal newGrandTotal = discountedBase.add(adjustedTax);
 
-    public Cart applyCoupon(String code) {
         return new Cart(
-                id, user, sessionId, totalPrice, totalMrpPrice,
-                quantity, discount, Objects.requireNonNull(code),
+                id, user, sessionId, subtotal, adjustedTax,
+                newDiscountPercentage, newCouponDiscountAmount, newGrandTotal,
+                quantity, Objects.requireNonNull(code),
                 status, cartItems
         );
     }
 
     public Cart removeCoupon() {
-        return new Cart(
-                id, user, sessionId, totalPrice, totalMrpPrice,
-                quantity, discount, null, status, cartItems
-        );
+        return recalculate(cartItems);
     }
 
     public boolean isEmpty() {
@@ -228,17 +287,15 @@ public class Cart {
 
     public boolean isValid() {
         if (isEmpty()) {
-            return totalPrice.compareTo(BigDecimal.ZERO) == 0
-                    && totalMrpPrice.compareTo(BigDecimal.ZERO) == 0
+            return subtotal.compareTo(BigDecimal.ZERO) == 0
+                    && grandTotal.compareTo(BigDecimal.ZERO) == 0
                     && quantity == 0;
         }
         int calculatedQuantity = getTotalQuantity();
-        BigDecimal calculatedTotalPrice = getTotalSellingPrice();
-        BigDecimal calculatedTotalMrpPrice = getCalculatedTotalMrpPrice();
+        BigDecimal calculatedSubtotal = getCalculatedSubtotal();
         
         return quantity == calculatedQuantity
-                && totalPrice.compareTo(calculatedTotalPrice) == 0
-                && totalMrpPrice.compareTo(calculatedTotalMrpPrice) == 0;
+                && subtotal.compareTo(calculatedSubtotal) == 0;
     }
 
     public boolean isIncreasingItemQuantity(Long productId, int newQuantity) {
@@ -265,31 +322,62 @@ public class Cart {
 
     public Cart withStatus(CartStatus newStatus) {
         return new Cart(
-                id, user, sessionId, totalPrice, totalMrpPrice,
-                quantity, discount, couponCode, newStatus, cartItems
+                id, user, sessionId, subtotal, totalTax,
+                discountPercentage, couponDiscountAmount, grandTotal,
+                quantity, couponCode, newStatus, cartItems
         );
     }
 
-    private Cart withCartItems(Set<CartItem> newCartItems) {
-        BigDecimal newTotalPrice = calculateTotalSellingPrice(newCartItems);
-        BigDecimal newTotalMrpPrice = calculateTotalMrpPrice(newCartItems);
+    /**
+     * Recalculates all cart totals based on the given items.
+     * subtotal = sum of item subtotals (base prices without tax)
+     * totalTax = sum of item taxes
+     * grandTotal = subtotal + totalTax
+     * Resets coupon discount when items change.
+     */
+    private Cart recalculate(Set<CartItem> newCartItems) {
+        BigDecimal newSubtotal = calculateSubtotal(newCartItems);
+        BigDecimal newTotalTax = calculateTotalTax(newCartItems);
         int newQuantity = calculateQuantity(newCartItems);
-        
+        BigDecimal newGrandTotal = newSubtotal.add(newTotalTax);
+
         return new Cart(
-                id, user, sessionId, newTotalPrice, newTotalMrpPrice,
-                newQuantity, discount, couponCode, status, newCartItems
+                id, user, sessionId, newSubtotal, newTotalTax,
+                BigDecimal.ZERO, BigDecimal.ZERO, newGrandTotal,
+                newQuantity, null, // Reset coupon when items change
+                status, newCartItems
         );
     }
 
-    private static BigDecimal calculateTotalSellingPrice(Set<CartItem> items) {
+    /**
+     * Calculates the average tax rate across all items (weighted by subtotal).
+     * Since subtotal is the base amount (without tax), this calculates: totalTax / subtotal
+     */
+    private BigDecimal getAverageTaxRate() {
+        BigDecimal calculatedSubtotal = getCalculatedSubtotal();
+        if (calculatedSubtotal.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal totalTaxAmount = getCalculatedTotalTax();
+        return totalTaxAmount.divide(calculatedSubtotal, 4, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Calculates tax on a given base amount using the cart's average tax rate.
+     */
+    private BigDecimal calculateTaxOnBase(BigDecimal baseAmount) {
+        return baseAmount.multiply(getAverageTaxRate()).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private static BigDecimal calculateSubtotal(Set<CartItem> items) {
         return items.stream()
-                .map(item -> item.getSellingPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(CartItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private static BigDecimal calculateTotalMrpPrice(Set<CartItem> items) {
+    private static BigDecimal calculateTotalTax(Set<CartItem> items) {
         return items.stream()
-                .map(item -> item.getMrpPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(CartItem::getTaxAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -303,10 +391,12 @@ public class Cart {
                 "id=" + id +
                 ", user=" + user +
                 ", sessionId='" + sessionId + '\'' +
-                ", totalPrice=" + totalPrice +
-                ", totalMrpPrice=" + totalMrpPrice +
+                ", subtotal=" + subtotal +
+                ", totalTax=" + totalTax +
+                ", discountPercentage=" + discountPercentage +
+                ", couponDiscountAmount=" + couponDiscountAmount +
+                ", grandTotal=" + grandTotal +
                 ", quantity=" + quantity +
-                ", discount=" + discount +
                 ", couponCode='" + couponCode + '\'' +
                 ", status=" + status +
                 ", cartItems=" + cartItems +

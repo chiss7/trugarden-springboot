@@ -33,13 +33,17 @@ public class CartEntity {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CartItemEntity> cartItems = new java.util.HashSet<>();
 
-    private BigDecimal totalPrice;
+    private BigDecimal subtotal;
 
-    private BigDecimal totalMrpPrice;
+    private BigDecimal totalTax;
+
+    private BigDecimal discountPercentage;
+
+    private BigDecimal couponDiscountAmount;
+
+    private BigDecimal grandTotal;
 
     private int quantity;
-
-    private int discount;
 
     private String couponCode;
 

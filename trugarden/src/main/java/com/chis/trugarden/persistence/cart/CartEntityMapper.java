@@ -24,10 +24,12 @@ public interface CartEntityMapper {
         cartEntity.setId(cart.getId());
         cartEntity.setUser(userEntityMapper.toEntity(cart.getUser()));
         cartEntity.setSessionId(cart.getSessionId());
-        cartEntity.setTotalPrice(cart.getTotalPrice());
-        cartEntity.setTotalMrpPrice(cart.getTotalMrpPrice());
+        cartEntity.setSubtotal(cart.getSubtotal());
+        cartEntity.setTotalTax(cart.getTotalTax());
+        cartEntity.setDiscountPercentage(cart.getDiscountPercentage());
+        cartEntity.setCouponDiscountAmount(cart.getCouponDiscountAmount());
+        cartEntity.setGrandTotal(cart.getGrandTotal());
         cartEntity.setQuantity(cart.getQuantity());
-        cartEntity.setDiscount(cart.getDiscount());
         cartEntity.setStatus(cart.getStatus());
         cartEntity.setCouponCode(cart.getCouponCode());
         cartEntity.setCartItems(
@@ -59,10 +61,12 @@ public interface CartEntityMapper {
                 cartEntity.getId(),
                 userEntityMapper.toDomain(cartEntity.getUser()),
                 cartEntity.getSessionId(),
-                cartEntity.getTotalPrice(),
-                cartEntity.getTotalMrpPrice(),
+                cartEntity.getSubtotal(),
+                cartEntity.getTotalTax(),
+                cartEntity.getDiscountPercentage(),
+                cartEntity.getCouponDiscountAmount(),
+                cartEntity.getGrandTotal(),
                 cartEntity.getQuantity(),
-                cartEntity.getDiscount(),
                 cartEntity.getCouponCode(),
                 cartEntity.getStatus(),
                 cartItems

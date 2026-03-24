@@ -33,9 +33,15 @@ public class CartItemEntity {
 
     private int quantity;
 
-    private BigDecimal mrpPrice;
+    private BigDecimal originalPrice;
 
-    private BigDecimal sellingPrice;
+    private BigDecimal unitPrice;
+
+    private BigDecimal subtotal;
+
+    private int taxPercentage;
+
+    private BigDecimal taxAmount;
 
     private Long userId;
 

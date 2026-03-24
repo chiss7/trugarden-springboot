@@ -13,8 +13,8 @@ public class Product {
     private final String name;
     private final String slug;
     private final String description;
-    private final BigDecimal mrpPrice;
-    private final BigDecimal sellingPrice;
+    private final BigDecimal originalPrice;
+    private final BigDecimal unitPrice;
     private final List<String> images;
     private final double discountPercentage;
     private final boolean hasIva;
@@ -29,8 +29,8 @@ public class Product {
             String name,
             String slug,
             String description,
-            BigDecimal mrpPrice,
-            BigDecimal sellingPrice,
+            BigDecimal originalPrice,
+            BigDecimal unitPrice,
             List<String> images,
             boolean hasIva,
             int ivaPercentage,
@@ -42,8 +42,8 @@ public class Product {
         this.name = Objects.requireNonNull(name, "El nombre del producto no puede ser nulo");
         this.slug = Objects.requireNonNull(slug, "El slug del producto no puede ser nulo");
         this.description = description;
-        this.mrpPrice = Objects.requireNonNull(mrpPrice, "El precio MRP del producto no puede ser nulo");
-        this.sellingPrice = Objects.requireNonNull(sellingPrice, "El precio de venta del producto no puede ser nulo");
+        this.originalPrice = Objects.requireNonNull(originalPrice, "El precio original del producto no puede ser nulo");
+        this.unitPrice = Objects.requireNonNull(unitPrice, "El precio unitario del producto no puede ser nulo");
         this.images = Objects.requireNonNull(images, "La lista de imágenes del producto no puede ser nula");
         this.discountPercentage = calculatePercentageDiscount();
         this.hasIva = hasIva;
@@ -58,8 +58,8 @@ public class Product {
             String name,
             String slug,
             String description,
-            BigDecimal mrpPrice,
-            BigDecimal sellingPrice,
+            BigDecimal originalPrice,
+            BigDecimal unitPrice,
             List<String> images,
             boolean hasIva,
             int ivaPercentage,
@@ -72,8 +72,8 @@ public class Product {
                 name,
                 slug,
                 description,
-                mrpPrice,
-                sellingPrice,
+                originalPrice,
+                unitPrice,
                 images,
                 hasIva,
                 ivaPercentage,
@@ -87,8 +87,8 @@ public class Product {
             String name,
             String slug,
             String description,
-            BigDecimal mrpPrice,
-            BigDecimal sellingPrice,
+            BigDecimal originalPrice,
+            BigDecimal unitPrice,
             List<String> images,
             boolean hasIva,
             int ivaPercentage,
@@ -101,8 +101,8 @@ public class Product {
                 name,
                 slug,
                 description,
-                mrpPrice,
-                sellingPrice,
+                originalPrice,
+                unitPrice,
                 images,
                 hasIva,
                 ivaPercentage,
@@ -128,12 +128,12 @@ public class Product {
         return description;
     }
 
-    public BigDecimal getMrpPrice() {
-        return mrpPrice;
+    public BigDecimal getOriginalPrice() {
+        return originalPrice;
     }
 
-    public BigDecimal getSellingPrice() {
-        return sellingPrice;
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
     }
 
     public List<String> getImages() {
@@ -164,12 +164,55 @@ public class Product {
         return category;
     }
 
+    /**
+     * Calculates the discount percentage between original price and unit price.
+     */
     public double calculatePercentageDiscount() {
-        if (mrpPrice.compareTo(BigDecimal.ZERO) == 0) {
+        if (originalPrice.compareTo(BigDecimal.ZERO) == 0) {
             return 0.0;
         }
-        BigDecimal discount = mrpPrice.subtract(sellingPrice);
-        return discount.divide(mrpPrice, 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).doubleValue();
+        BigDecimal discount = originalPrice.subtract(unitPrice);
+        return discount.divide(originalPrice, 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).doubleValue();
+    }
+
+    /**
+     * Returns the unit price with IVA included.
+     * If hasIva is false, returns the base unitPrice.
+     */
+    public BigDecimal getUnitPriceWithTax() {
+        if (!hasIva || ivaPercentage == 0) {
+            return unitPrice;
+        }
+        BigDecimal taxMultiplier = BigDecimal.ONE.add(
+                BigDecimal.valueOf(ivaPercentage).divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)
+        );
+        return unitPrice.multiply(taxMultiplier).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Returns the original price with IVA included.
+     * If hasIva is false, returns the base originalPrice.
+     */
+    public BigDecimal getOriginalPriceWithTax() {
+        if (!hasIva || ivaPercentage == 0) {
+            return originalPrice;
+        }
+        BigDecimal taxMultiplier = BigDecimal.ONE.add(
+                BigDecimal.valueOf(ivaPercentage).divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)
+        );
+        return originalPrice.multiply(taxMultiplier).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Returns the tax amount for the unit price.
+     */
+    public BigDecimal getUnitPriceTaxAmount() {
+        if (!hasIva || ivaPercentage == 0) {
+            return BigDecimal.ZERO;
+        }
+        return unitPrice.multiply(
+                BigDecimal.valueOf(ivaPercentage).divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP)
+        ).setScale(2, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -179,8 +222,8 @@ public class Product {
                 ", name='" + name + '\'' +
                 ", slug='" + slug + '\'' +
                 ", description='" + description + '\'' +
-                ", mrpPrice=" + mrpPrice +
-                ", sellingPrice=" + sellingPrice +
+                ", originalPrice=" + originalPrice +
+                ", unitPrice=" + unitPrice +
                 ", images=" + images +
                 ", discountPercentage=" + discountPercentage +
                 ", hasIva=" + hasIva +

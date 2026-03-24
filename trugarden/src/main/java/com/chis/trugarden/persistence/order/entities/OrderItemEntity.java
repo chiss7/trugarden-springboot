@@ -33,8 +33,11 @@ public class OrderItemEntity {
 
     private int quantity;
 
-    private BigDecimal mrpPrice;
-    private BigDecimal sellingPrice;
+    private BigDecimal originalPrice;
+    private BigDecimal unitPrice;
+    private BigDecimal subtotal;
+    private int taxPercentage;
+    private BigDecimal taxAmount;
 
     private Long userId;
 

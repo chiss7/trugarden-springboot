@@ -11,4 +11,11 @@ public class ProductErrors {
                 String.format("No se encontró el producto '%s'.", id)
         );
     }
+
+    public static Error slugAlreadyExists(String slug) {
+        return Error.conflict(
+                "PRODUCT_SLUG_ALREADY_EXISTS",
+                String.format("El slug '%s' ya está en uso por otro producto.", slug)
+        );
+    }
 }

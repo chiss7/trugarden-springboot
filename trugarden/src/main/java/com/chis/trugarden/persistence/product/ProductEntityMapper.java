@@ -19,8 +19,8 @@ public interface ProductEntityMapper {
         entity.setName(product.getName());
         entity.setSlug(product.getSlug());
         entity.setDescription(product.getDescription());
-        entity.setMrpPrice(product.getMrpPrice());
-        entity.setSellingPrice(product.getSellingPrice());
+        entity.setOriginalPrice(product.getOriginalPrice());
+        entity.setUnitPrice(product.getUnitPrice());
         entity.setImages(product.getImages());
         entity.setHasIva(product.isHasIva());
         entity.setIvaPercentage(product.getIvaPercentage());
@@ -41,8 +41,8 @@ public interface ProductEntityMapper {
                 entity.getName(),
                 entity.getSlug(),
                 entity.getDescription(),
-                entity.getMrpPrice(),
-                entity.getSellingPrice(),
+                entity.getOriginalPrice(),
+                entity.getUnitPrice(),
                 entity.getImages(),
                 entity.isHasIva(),
                 entity.getIvaPercentage(),

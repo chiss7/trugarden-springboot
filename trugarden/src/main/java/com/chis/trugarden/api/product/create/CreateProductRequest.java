@@ -1,5 +1,6 @@
 package com.chis.trugarden.api.product.create;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -20,11 +21,11 @@ public record CreateProductRequest(
         @NotBlank(message = "description cannot be blank")
         String description,
 
-        @NotNull(message = "mrpPrice is required")
-        BigDecimal mrpPrice,
+        @NotNull(message = "originalPrice is required")
+        BigDecimal originalPrice,
 
-        @NotNull(message = "sellingPrice is required")
-        BigDecimal sellingPrice,
+        @NotNull(message = "unitPrice is required")
+        BigDecimal unitPrice,
 
         @NotNull(message = "images are required")
         @NotEmpty(message = "images cannot be empty")
@@ -39,6 +40,13 @@ public record CreateProductRequest(
 
         @NotNull(message = "hasIva is required")
         Boolean hasIva,
-        int ivaPercentage
+        Integer ivaPercentage
 ) {
+        @AssertTrue(message = "ivaPercentage is required")
+        public boolean isIvaValid() {
+                if (Boolean.TRUE.equals(hasIva)) {
+                        return ivaPercentage != null && ivaPercentage > 0;
+                }
+                return true;
+        }
 }

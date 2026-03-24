@@ -33,4 +33,14 @@ public class ProductRepositoryImpl implements ProductRepository {
                     return Optional.empty();
                 });
     }
+
+    @Override
+    public Optional<Product> findBySlug(String slug) {
+        return productJpaRepository.findBySlug(slug)
+                .map(productEntityMapper::toDomain)
+                .or(() -> {
+                    log.warn("Product with slug {} not found", slug);
+                    return Optional.empty();
+                });
+    }
 }

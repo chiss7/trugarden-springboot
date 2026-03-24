@@ -28,8 +28,8 @@ public class ProductEntity extends BaseEntity {
     @ElementCollection
     private List<String> images = new java.util.ArrayList<>();
 
-    private BigDecimal mrpPrice;
-    private BigDecimal sellingPrice;
+    private BigDecimal originalPrice;
+    private BigDecimal unitPrice;
     private double discountPercentage;
     private double stock;
     private boolean hasIva;
