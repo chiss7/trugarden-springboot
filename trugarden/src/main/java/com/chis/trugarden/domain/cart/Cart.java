@@ -244,7 +244,9 @@ public class Cart {
     public boolean isIncreasingItemQuantity(Long productId, int newQuantity) {
         return cartItems.stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
-                .anyMatch(item -> newQuantity > item.getQuantity());
+                .findFirst()
+                .map(item -> newQuantity > item.getQuantity())
+                .orElse(newQuantity > 0);
     }
 
     public boolean isDecreasingItemQuantity(Long productId, int newQuantity) {
