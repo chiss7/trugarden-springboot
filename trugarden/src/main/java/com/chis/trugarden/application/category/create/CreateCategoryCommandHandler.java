@@ -16,6 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CreateCategoryCommandHandler {
     private final CategoryRepository categoryRepository;
+
     @CommandHandler
     public Result<Long> handle(CreateCategoryCommand command) {
         try {

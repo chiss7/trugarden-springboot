@@ -11,12 +11,15 @@ public interface CategoryEntityMapper {
             return null;
         }
         CategoryEntity entity = new CategoryEntity();
-        CategoryEntity parent = new CategoryEntity();
-        parent.setId(category.getParentCategory() != null ? category.getParentCategory().getId() : null);
+
+        if (category.getParentCategory() != null) {
+            entity.setParentCategory(toEntity(category.getParentCategory()));
+        } else {
+            entity.setParentCategory(null);
+        }
         entity.setId(category.getId());
         entity.setName(category.getName());
         entity.setCategoryCode(category.getCategoryCode());
-        entity.setParentCategory(parent);
         entity.setLevel(category.getLevel());
         return entity;
     }

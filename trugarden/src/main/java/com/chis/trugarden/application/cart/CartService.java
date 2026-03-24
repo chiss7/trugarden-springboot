@@ -1,0 +1,111 @@
+package com.chis.trugarden.application.cart;
+
+import com.chis.trugarden.application.cart.abstractions.CartRepository;
+import com.chis.trugarden.domain.cart.Cart;
+import com.chis.trugarden.domain.cart.CartErrors;
+import com.chis.trugarden.domain.cart.CartItem;
+import com.chis.trugarden.domain.product.Product;
+import com.chis.trugarden.infrastructure.security.AuthenticationHelper;
+import com.chis.trugarden.shared.enums.CartStatus;
+import com.chis.trugarden.shared.result.Result;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.Set;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class CartService {
+    private final CartRepository cartRepository;
+
+    public Result<Cart> getUserCart(String sessionId) {
+        boolean isAuthenticated = AuthenticationHelper.isAuthenticated();
+
+        if (!isAuthenticated && sessionId != null) {
+            Optional<Cart> cartOpt = cartRepository.findBySessionId(sessionId);
+            return cartOpt.map(Result::success).orElseGet(() -> Result.success(getNotCreatedCart()));
+        } else if (isAuthenticated) {
+            Long userId = AuthenticationHelper.getCurrentUserId();
+            Optional<Cart> cartOpt = cartRepository.findByUserId(userId);
+            return cartOpt.map(Result::success).orElseGet(() -> Result.success(getNotCreatedCart()));
+        } else {
+            return Result.failure(CartErrors.invalidAction());
+        }
+    }
+
+    @Transactional
+    public Result<Cart> createCart(String sessionId, Product product, int quantity) {
+        boolean isAuthenticated = AuthenticationHelper.isAuthenticated();
+
+        CartItem newCartItem = CartItem.ofNew(
+                null,
+                product,
+                quantity,
+                product.getMrpPrice(),
+                product.getSellingPrice(),
+                isAuthenticated ? AuthenticationHelper.getCurrentUserId() : null
+        );
+
+        Cart newCart = Cart.ofNew(
+                isAuthenticated ? AuthenticationHelper.getCurrentUser().getDomainUser() : null,
+                isAuthenticated ? null : sessionId,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                0,
+                0,
+                null,
+                CartStatus.ACTIVE,
+                Set.of()
+        );
+
+        Cart toSave = newCart.addItem(newCartItem);
+        return Result.success(cartRepository.save(toSave));
+    }
+
+    @Transactional
+    public Result<Cart> updateCartItem(Cart cart, Product product, int quantity, boolean isIncreasingItemQuantity) {
+        if (!cart.isActive()) {
+            return Result.failure(CartErrors.unableToUpdateCart());
+        }
+
+        if (!isIncreasingItemQuantity && !cart.hasItem(product.getId())) {
+            return Result.failure(CartErrors.itemNotInCart(product.getId()));
+        }
+
+        Cart updatedCart;
+        if (cart.hasItem(product.getId())) {
+            updatedCart = cart.updateItemQuantity(product.getId(), quantity);
+        } else {
+            CartItem newCartItem = CartItem.ofNew(
+                    cart.getId(),
+                    product,
+                    quantity,
+                    product.getMrpPrice(),
+                    product.getSellingPrice(),
+                    cart.getUser() != null ? cart.getUser().getId() : null
+            );
+            updatedCart = cart.addItem(newCartItem);
+        }
+
+        return Result.success(cartRepository.save(updatedCart));
+    }
+
+    private Cart getNotCreatedCart() {
+        return Cart.ofNew(
+                null,
+                null,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                0,
+                0,
+                null,
+                CartStatus.NOT_CREATED,
+                Set.of()
+        );
+    }
+}

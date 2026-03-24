@@ -38,7 +38,7 @@ public class AuthenticationController extends ControllerBase {
     public ResponseEntity<GenericResponse<?>> login(@RequestBody @Valid AuthenticationRequest request) {
         Result<LoginResult> result = commandGateway.sendAndWait(authenticationMapper.toLoginCommand(request));
         return result.isSuccess() ?
-                (ResponseEntity) success(authenticationMapper.toLoginResponse(result.getValue())) :
+                success(authenticationMapper.toLoginResponse(result.getValue())) :
                 error(result.getError());
     }
 
@@ -46,7 +46,7 @@ public class AuthenticationController extends ControllerBase {
     public ResponseEntity<GenericResponse<?>> activate(@RequestParam String token) {
         Result<Void> result = commandGateway.sendAndWait(new ActivationCommand(token));
         return result.isSuccess() ?
-                (ResponseEntity) success("Cuenta activada exitosamente.") :
+                success("Cuenta activada exitosamente.") :
                 error(result.getError());
     }
 }

@@ -4,9 +4,11 @@ import com.chis.trugarden.domain.user.Token;
 import com.chis.trugarden.persistence.user.entities.TokenEntity;
 import com.chis.trugarden.persistence.user.entities.UserEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface TokenEntityMapper {
+    UserEntityMapper userEntityMapper = Mappers.getMapper(UserEntityMapper.class);
 
     default TokenEntity toEntity(Token token) {
         TokenEntity tokenEntity = new TokenEntity();
@@ -20,7 +22,7 @@ public interface TokenEntityMapper {
         return tokenEntity;
     }
 
-    default Token toDomain(TokenEntity tokenEntity, UserEntityMapper userEntityMapper) {
+    default Token toDomain(TokenEntity tokenEntity) {
         return Token.of(
                 tokenEntity.getId(),
                 tokenEntity.getToken(),

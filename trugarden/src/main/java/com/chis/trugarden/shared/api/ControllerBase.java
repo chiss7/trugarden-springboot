@@ -12,7 +12,7 @@ public abstract class ControllerBase {
     /**
      * Success response
      */
-    protected <T> ResponseEntity<GenericResponse<T>> success(T data) {
+    protected <T> ResponseEntity<GenericResponse<?>> success(T data) {
         return ResponseEntity.ok(GenericResponse.createSuccessResponse(data));
     }
 

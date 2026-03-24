@@ -1,34 +1,48 @@
 package com.chis.trugarden.persistence.cart.entities;
 
 import com.chis.trugarden.persistence.product.entities.ProductEntity;
-import com.chis.trugarden.shared.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Getter
-@Setter
-@SuperBuilder
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@Builder
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "cart_item")
-public class CartItemEntity extends BaseEntity {
+public class CartItemEntity {
+    @Id
+    @GeneratedValue
+    private Long id;
 
     @ManyToOne
-    @JsonIgnore
+    @JoinColumn(name = "cart_id")
     private CartEntity cart;
 
     @OneToOne
     private ProductEntity product;
 
-    private int quantity = 1;
+    private int quantity;
 
-    private Integer mrpPrice;
+    private BigDecimal mrpPrice;
 
-    private double sellingPrice;
+    private BigDecimal sellingPrice;
 
     private Long userId;
 
+    @CreatedDate
+    @Column(updatable = false, nullable = false)
+    private LocalDateTime createdDate;
+    @LastModifiedDate
+    @Column(insertable = false)
+    private LocalDateTime lastModifiedDate;
 }

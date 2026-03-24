@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final JwtFilter jwtAuthFilter;
+    private final SessionIdFilter sessionIdFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -31,12 +32,14 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/**" // Allow authentication-related requests
                         ).permitAll() // These endpoints can be accessed publicly
+                        .requestMatchers("/cart/**").permitAll()
                         .anyRequest().authenticated()) // All other requests require authentication
                 // Define stateless session management, meaning no session state is stored
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider) // Set the custom authentication provider
                 // Add the JWT authentication filter before the UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(sessionIdFilter, JwtFilter.class)
                 .build();
     }
 }

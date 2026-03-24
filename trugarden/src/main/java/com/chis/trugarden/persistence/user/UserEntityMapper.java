@@ -4,9 +4,11 @@ import com.chis.trugarden.domain.role.Role;
 import com.chis.trugarden.domain.user.Email;
 import com.chis.trugarden.domain.user.Password;
 import com.chis.trugarden.domain.user.User;
+import com.chis.trugarden.persistence.role.RoleEntityMapper;
 import com.chis.trugarden.persistence.role.entities.RoleEntity;
 import com.chis.trugarden.persistence.user.entities.UserEntity;
 import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 import java.util.Set;
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface UserEntityMapper {
+    RoleEntityMapper roleEntityMapper = Mappers.getMapper(RoleEntityMapper.class);
 
     default User toDomain(UserEntity entity) {
         if (entity == null) {
@@ -22,7 +25,7 @@ public interface UserEntityMapper {
 
         Set<Role> roles = entity.getRoles()
                 .stream()
-                .map(roleEntity -> Role.of(roleEntity.getId(), roleEntity.getName()))
+                .map(roleEntityMapper::toDomain)
                 .collect(Collectors.toSet());
 
         return User.of(
@@ -46,12 +49,7 @@ public interface UserEntityMapper {
 
         UserEntity entity = new UserEntity();
         List<RoleEntity> roleEntities = domain.getRoles().stream()
-                .map(role -> {
-                    RoleEntity roleEntity = new RoleEntity();
-                    roleEntity.setId(role.getId());
-                    roleEntity.setName(role.getName());
-                    return roleEntity;
-                })
+                .map(roleEntityMapper::toEntity)
                 .toList();
 
         entity.setId(domain.getId());
