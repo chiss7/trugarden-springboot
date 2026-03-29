@@ -47,7 +47,9 @@ public interface UserEntityMapper {
                 entity.isAccountLocked(),
                 entity.isEnabled(),
                 roles,
-                addresses
+                addresses,
+                entity.getGoogleId(),
+                entity.getAuthProvider()
         );
     }
 
@@ -77,10 +79,12 @@ public interface UserEntityMapper {
         entity.setDateOfBirth(domain.getDateOfBirth());
         entity.setImage(domain.getImage());
         entity.setEmail(domain.getEmail().value());
-        entity.setPassword(domain.getPassword().hashedValue());
+        entity.setPassword(domain.getPassword() != null ? domain.getPassword().hashedValue() : null);
         entity.setAccountLocked(domain.isAccountLocked());
         entity.setEnabled(domain.isEnabled());
         entity.setRoles(roleEntities);
+        entity.setGoogleId(domain.getGoogleId());
+        entity.setAuthProvider(domain.getAuthProvider());
 
         return entity;
     }

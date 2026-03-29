@@ -3,6 +3,7 @@ package com.chis.trugarden.persistence.user.entities;
 import com.chis.trugarden.persistence.coupon.entities.CouponEntity;
 import com.chis.trugarden.persistence.order.entities.OrderEntity;
 import com.chis.trugarden.persistence.role.entities.RoleEntity;
+import com.chis.trugarden.shared.enums.AuthProvider;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -42,6 +43,9 @@ public class UserEntity  {
     private String password;
     private boolean accountLocked;
     private boolean enabled;
+    private String googleId;
+    @Enumerated(EnumType.STRING)
+    private AuthProvider authProvider;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AddressEntity> addresses;

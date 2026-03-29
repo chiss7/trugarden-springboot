@@ -29,6 +29,12 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByGoogleId(String googleId) {
+        return userJpaRepository.findByGoogleId(googleId)
+                .map(userEntityMapper::toDomain);
+    }
+
+    @Override
     public User save(User user) {
         UserEntity entity = userEntityMapper.toEntity(user);
         UserEntity savedEntity = userJpaRepository.save(entity);

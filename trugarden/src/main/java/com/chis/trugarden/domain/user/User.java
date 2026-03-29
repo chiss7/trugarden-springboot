@@ -2,6 +2,7 @@ package com.chis.trugarden.domain.user;
 
 import com.chis.trugarden.domain.role.Role;
 import com.chis.trugarden.infrastructure.security.CustomUserDetails;
+import com.chis.trugarden.shared.enums.AuthProvider;
 import com.chis.trugarden.shared.enums.Roles;
 
 import java.time.LocalDate;
@@ -23,6 +24,8 @@ public class User {
     private final boolean enabled;
     private final Set<Role> roles;
     private final List<Address> addresses;
+    private final String googleId;
+    private final AuthProvider authProvider;
 
     public User(
             Long id,
@@ -35,7 +38,9 @@ public class User {
             boolean accountLocked,
             boolean enabled,
             Set<Role> roles,
-            List<Address> addresses
+            List<Address> addresses,
+            String googleId,
+            AuthProvider authProvider
     ) {
         this.id = id;
         this.firstname = firstname;
@@ -50,6 +55,8 @@ public class User {
                 ? Set.copyOf(roles)
                 : Collections.emptySet();
         this.addresses = addresses;
+        this.googleId = googleId;
+        this.authProvider = authProvider;
     }
 
     public static User of(
@@ -63,10 +70,12 @@ public class User {
             boolean accountLocked,
             boolean enabled,
             Set<Role> roles,
-            List<Address> addresses
+            List<Address> addresses,
+            String googleId,
+            AuthProvider authProvider
     ) {
         return new User(id, firstname, lastname, dateOfBirth, image,
-                email, password, accountLocked, enabled, roles, addresses);
+                email, password, accountLocked, enabled, roles, addresses, googleId, authProvider);
     }
 
     public static User ofNew(
@@ -90,7 +99,35 @@ public class User {
                 false,
                 false,
                 initialRoles != null ? initialRoles : Set.of(Role.ofNew(Roles.ROLE_CUSTOMER)),
-                addresses
+                addresses,
+                null,
+                AuthProvider.LOCAL
+        );
+    }
+
+    public static User ofNewOAuth(
+            String firstname,
+            String lastname,
+            String image,
+            Email email,
+            String googleId,
+            Set<Role> initialRoles,
+            List<Address> addresses
+    ) {
+        return new User(
+                null,
+                firstname,
+                lastname,
+                null,
+                image,
+                email,
+                null,
+                false,
+                true,
+                initialRoles != null ? initialRoles : Set.of(Role.ofNew(Roles.ROLE_CUSTOMER)),
+                addresses,
+                googleId,
+                AuthProvider.GOOGLE
         );
     }
 
@@ -106,7 +143,9 @@ public class User {
                 true,
                 this.enabled,
                 this.roles,
-                this.addresses
+                this.addresses,
+                this.googleId,
+                this.authProvider
         );
     }
 
@@ -122,7 +161,9 @@ public class User {
                 false,
                 this.enabled,
                 this.roles,
-                this.addresses
+                this.addresses,
+                this.googleId,
+                this.authProvider
         );
     }
 
@@ -138,7 +179,9 @@ public class User {
                 this.accountLocked,
                 enabled,
                 this.roles,
-                this.addresses
+                this.addresses,
+                this.googleId,
+                this.authProvider
         );
     }
 
@@ -158,7 +201,27 @@ public class User {
                 this.accountLocked,
                 this.enabled,
                 this.roles,
-                updatedAddresses
+                updatedAddresses,
+                this.googleId,
+                this.authProvider
+        );
+    }
+
+    public User withGoogleId(String googleId) {
+        return new User(
+                this.id,
+                this.firstname,
+                this.lastname,
+                this.dateOfBirth,
+                this.image,
+                this.email,
+                this.password,
+                this.accountLocked,
+                this.enabled,
+                this.roles,
+                this.addresses,
+                googleId,
+                this.authProvider
         );
     }
 
@@ -212,6 +275,14 @@ public class User {
 
     public List<Address> getAddresses() {
         return addresses;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public AuthProvider getAuthProvider() {
+        return authProvider;
     }
 
     public boolean hasCreatedAddress() {
