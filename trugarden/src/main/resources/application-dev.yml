@@ -32,11 +32,11 @@ server:
   port: 8088
 
 payphone:
-  token: "Bearer 443zdbuIG1KC03qg63NQE49UqxCVIMGLU3iXYZo4mQXbtoSsM1UX5jniJw0JGnD-2i5V0bZi0Y82yWDIUX847lXYeEQD6-iBMizEsv1Z6-xfJmKstjqHr0xNsDY9cZtiSZ_iffUtnmJSN-daWp6e8TyplFUo5x8wgK9-fFe280p8e6S2nTnVCy110f97J14nAekb9tinN053XzKEo_asfRJEMb99xLUNQPuDf9DHLfjCsWrM9ryU2M8QVyq-1InD_uy2bodwPi7W-RRLmy55tcW9soqpC4xmWMCshbK7yf-Y4Cr1ATWCJesMUjcfX4pk5TADaA"
-  base-url: "https://pay.payphonetodoesposible.com/api"
-  store-id: "cef216f3-2189-4724-9b71-f3d84ee71890"
-  callback-url: "http://localhost:3000/response"
-  cancel-url: "http://localhost:3000/cancel"
+  token: ${PAYPHONE_TOKEN}
+  base-url: ${PAYPHONE_BASE_URL}
+  store-id: ${PAYPHONE_STORE_ID}
+  callback-url: ${PAYPHONE_CALLBACK_URL}
+  cancel-url: ${PAYPHONE_CANCEL_URL}
 
 trugarden:
   email:
