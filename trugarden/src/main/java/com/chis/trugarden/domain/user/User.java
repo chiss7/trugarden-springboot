@@ -6,6 +6,7 @@ import com.chis.trugarden.shared.enums.Roles;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -21,6 +22,7 @@ public class User {
     private final boolean accountLocked;
     private final boolean enabled;
     private final Set<Role> roles;
+    private final List<Address> addresses;
 
     public User(
             Long id,
@@ -32,7 +34,8 @@ public class User {
             Password password,
             boolean accountLocked,
             boolean enabled,
-            Set<Role> roles
+            Set<Role> roles,
+            List<Address> addresses
     ) {
         this.id = id;
         this.firstname = firstname;
@@ -46,6 +49,7 @@ public class User {
         this.roles = roles != null
                 ? Set.copyOf(roles)
                 : Collections.emptySet();
+        this.addresses = addresses;
     }
 
     public static User of(
@@ -58,10 +62,11 @@ public class User {
             Password password,
             boolean accountLocked,
             boolean enabled,
-            Set<Role> roles
+            Set<Role> roles,
+            List<Address> addresses
     ) {
         return new User(id, firstname, lastname, dateOfBirth, image,
-                email, password, accountLocked, enabled, roles);
+                email, password, accountLocked, enabled, roles, addresses);
     }
 
     public static User ofNew(
@@ -71,7 +76,8 @@ public class User {
             String image,
             Email email,
             Password password,
-            Set<Role> initialRoles
+            Set<Role> initialRoles,
+            List<Address> addresses
     ) {
         return new User(
                 null,
@@ -83,7 +89,8 @@ public class User {
                 password,
                 false,
                 false,
-                initialRoles != null ? initialRoles : Set.of(Role.ofNew(Roles.ROLE_CUSTOMER))
+                initialRoles != null ? initialRoles : Set.of(Role.ofNew(Roles.ROLE_CUSTOMER)),
+                addresses
         );
     }
 
@@ -98,7 +105,8 @@ public class User {
                 this.password,
                 true,
                 this.enabled,
-                this.roles
+                this.roles,
+                this.addresses
         );
     }
 
@@ -113,7 +121,8 @@ public class User {
                 this.password,
                 false,
                 this.enabled,
-                this.roles
+                this.roles,
+                this.addresses
         );
     }
 
@@ -128,7 +137,28 @@ public class User {
                 this.password,
                 this.accountLocked,
                 enabled,
-                this.roles
+                this.roles,
+                this.addresses
+        );
+    }
+
+    public User withNewAddress(Address newAddress) {
+        List<Address> updatedAddresses = this.addresses != null
+                ? new java.util.ArrayList<>(this.addresses)
+                : new java.util.ArrayList<>();
+        updatedAddresses.add(newAddress);
+        return new User(
+                this.id,
+                this.firstname,
+                this.lastname,
+                this.dateOfBirth,
+                this.image,
+                this.email,
+                this.password,
+                this.accountLocked,
+                this.enabled,
+                this.roles,
+                updatedAddresses
         );
     }
 
@@ -180,6 +210,14 @@ public class User {
         return roles;
     }
 
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public boolean hasCreatedAddress() {
+        return addresses != null && !addresses.isEmpty();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -204,6 +242,7 @@ public class User {
                 ", accountLocked=" + accountLocked +
                 ", enabled=" + enabled +
                 ", roles=" + roles +
+                ", addresses=" + addresses +
                 '}';
     }
 }

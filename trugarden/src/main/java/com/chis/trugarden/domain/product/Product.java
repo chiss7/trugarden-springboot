@@ -215,6 +215,23 @@ public class Product {
         ).setScale(2, RoundingMode.HALF_UP);
     }
 
+    public Product withStock(double newStock) {
+        return new Product(
+                this.id,
+                this.name,
+                this.slug,
+                this.description,
+                this.originalPrice,
+                this.unitPrice,
+                this.images,
+                this.hasIva,
+                this.ivaPercentage,
+                this.numRatings,
+                newStock,
+                this.category
+        );
+    }
+
     @Override
     public String toString() {
         return "Product{" +

@@ -2,7 +2,7 @@ package com.chis.trugarden.shared.enums;
 
 public enum PaymentStatus {
     PENDING,
-    PROCESSING,
     COMPLETED,
+    CANCELED,
     FAILED
 }

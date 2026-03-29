@@ -5,6 +5,7 @@ import com.chis.trugarden.domain.cart.Cart;
 import com.chis.trugarden.persistence.cart.CartEntityMapper;
 import com.chis.trugarden.persistence.cart.CartJpaRepository;
 import com.chis.trugarden.persistence.cart.entities.CartEntity;
+import com.chis.trugarden.shared.enums.CartStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,21 +20,21 @@ public class CartRepositoryImpl implements CartRepository {
     private final CartEntityMapper cartEntityMapper;
 
     @Override
-    public Optional<Cart> findByUserId(Long userId) {
-        return cartJpaRepository.findByUserId(userId)
+    public Optional<Cart> findByUserIdAndStatus(Long userId, CartStatus status) {
+        return cartJpaRepository.findByUserIdAndStatus(userId, status)
                 .map(cartEntityMapper::toDomain)
                 .or(() -> {
-                    log.warn("No cart found for userId {}", userId);
+                    log.warn("No {} cart found for userId {}", status, userId);
                     return Optional.empty();
                 });
     }
 
     @Override
-    public Optional<Cart> findBySessionId(String sessionId) {
-        return cartJpaRepository.findBySessionId(sessionId)
+    public Optional<Cart> findBySessionIdAndStatus(String sessionId, CartStatus status) {
+        return cartJpaRepository.findBySessionIdAndStatus(sessionId, status)
                 .map(cartEntityMapper::toDomain)
                 .or(() -> {
-                    log.warn("No cart found for sessionId {}", sessionId);
+                    log.warn("No {} cart found for sessionId {}", status, sessionId);
                     return Optional.empty();
                 });
     }

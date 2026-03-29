@@ -2,6 +2,7 @@ package com.chis.trugarden.domain.cart;
 
 import com.chis.trugarden.domain.user.User;
 import com.chis.trugarden.shared.enums.CartStatus;
+import org.jmolecules.ddd.annotation.AggregateRoot;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,6 +11,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
+@AggregateRoot
 public class Cart {
     private final Long id;
     private final User user;
@@ -276,6 +278,10 @@ public class Cart {
         return status == CartStatus.ACTIVE;
     }
 
+    public boolean isNotActive() {
+        return status != CartStatus.ACTIVE;
+    }
+
     public boolean isNotCreated() {
         return status == CartStatus.NOT_CREATED;
     }
@@ -288,14 +294,45 @@ public class Cart {
     public boolean isValid() {
         if (isEmpty()) {
             return subtotal.compareTo(BigDecimal.ZERO) == 0
+                    && totalTax.compareTo(BigDecimal.ZERO) == 0
                     && grandTotal.compareTo(BigDecimal.ZERO) == 0
                     && quantity == 0;
         }
+
         int calculatedQuantity = getTotalQuantity();
         BigDecimal calculatedSubtotal = getCalculatedSubtotal();
-        
-        return quantity == calculatedQuantity
-                && subtotal.compareTo(calculatedSubtotal) == 0;
+        BigDecimal calculatedTax = getCalculatedTotalTax();
+
+        boolean basicValidation =
+                quantity == calculatedQuantity &&
+                        subtotal.compareTo(calculatedSubtotal) == 0 &&
+                        totalTax.compareTo(calculatedTax) == 0;
+
+        BigDecimal expectedGrandTotal;
+
+        if (couponCode != null && discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal expectedDiscount = subtotal
+                    .multiply(discountPercentage)
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+            if (couponDiscountAmount.compareTo(expectedDiscount) != 0) {
+                return false;
+            }
+
+            BigDecimal discountedBase = subtotal.subtract(couponDiscountAmount);
+            BigDecimal expectedTax = calculateTaxOnBase(discountedBase);
+            expectedGrandTotal = discountedBase.add(expectedTax);
+
+            return basicValidation
+                    && totalTax.compareTo(expectedTax) == 0
+                    && grandTotal.compareTo(expectedGrandTotal) == 0;
+        }
+
+        // No coupon
+        expectedGrandTotal = subtotal.add(totalTax);
+
+        return basicValidation
+                && grandTotal.compareTo(expectedGrandTotal) == 0;
     }
 
     public boolean isIncreasingItemQuantity(Long productId, int newQuantity) {
@@ -314,6 +351,10 @@ public class Cart {
 
     public Cart markAsOrdered() {
         return withStatus(CartStatus.CHECKED_OUT);
+    }
+
+    public Cart markAsPendingPayment() {
+        return withStatus(CartStatus.PENDING_PAYMENT);
     }
 
     public Cart markAsAbandoned() {
@@ -383,6 +424,12 @@ public class Cart {
 
     private static int calculateQuantity(Set<CartItem> items) {
         return items.stream().mapToInt(CartItem::getQuantity).sum();
+    }
+
+    public Set<CartItem> getItemsWithoutStock() {
+        return cartItems.stream()
+                .filter(item -> item.getQuantity() > item.getProduct().getStock())
+                .collect(Collectors.toSet());
     }
 
     @Override

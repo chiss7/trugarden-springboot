@@ -1,11 +1,13 @@
 package com.chis.trugarden.domain.cart;
 
 import com.chis.trugarden.domain.product.Product;
+import org.jmolecules.ddd.annotation.Entity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 
+@Entity
 public class CartItem {
     private final Long id;
     private final Long cartId;

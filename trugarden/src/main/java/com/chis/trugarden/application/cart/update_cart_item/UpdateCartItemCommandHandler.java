@@ -6,6 +6,7 @@ import com.chis.trugarden.domain.cart.Cart;
 import com.chis.trugarden.domain.cart.CartErrors;
 import com.chis.trugarden.domain.product.Product;
 import com.chis.trugarden.domain.product.ProductErrors;
+import com.chis.trugarden.shared.enums.CartStatus;
 import com.chis.trugarden.shared.result.Result;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class UpdateCartItemCommandHandler {
 
     @CommandHandler
     public Result<Long> handle(UpdateCartItemCommand command) {
-        Result<Cart> userCartResult = cartService.getUserCart(command.sessionId());
+        Result<Cart> userCartResult = cartService.getUserCart(command.sessionId(), CartStatus.ACTIVE);
         if (userCartResult.isFailure()) {
             return Result.failure(userCartResult.getError());
         }

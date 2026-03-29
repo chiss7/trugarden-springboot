@@ -43,9 +43,8 @@ public class UserEntity  {
     private boolean accountLocked;
     private boolean enabled;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id")
-    private AddressEntity address;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AddressEntity> addresses;
 
     @ManyToMany(fetch = FetchType.EAGER) // when the entity is loaded, the roles list will also be loaded immediately
     private List<RoleEntity> roles;

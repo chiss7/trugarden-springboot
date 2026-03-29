@@ -18,4 +18,11 @@ public class ProductErrors {
                 String.format("El slug '%s' ya está en uso por otro producto.", slug)
         );
     }
+
+    public static Error insufficientStock(String name) {
+        return Error.conflict(
+                "PRODUCT_INSUFFICIENT_STOCK",
+                String.format("No hay suficiente stock para el producto '%s'.", name)
+        );
+    }
 }

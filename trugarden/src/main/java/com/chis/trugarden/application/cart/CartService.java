@@ -21,15 +21,15 @@ import java.util.Optional;
 public class CartService {
     private final CartRepository cartRepository;
 
-    public Result<Cart> getUserCart(String sessionId) {
+    public Result<Cart> getUserCart(String sessionId, CartStatus status) {
         boolean isAuthenticated = AuthenticationHelper.isAuthenticated();
 
         if (!isAuthenticated && sessionId != null) {
-            Optional<Cart> cartOpt = cartRepository.findBySessionId(sessionId);
+            Optional<Cart> cartOpt = cartRepository.findBySessionIdAndStatus(sessionId, status);
             return cartOpt.map(Result::success).orElseGet(() -> Result.success(getNotCreatedCart()));
         } else if (isAuthenticated) {
             Long userId = AuthenticationHelper.getCurrentUserId();
-            Optional<Cart> cartOpt = cartRepository.findByUserId(userId);
+            Optional<Cart> cartOpt = cartRepository.findByUserIdAndStatus(userId, status);
             return cartOpt.map(Result::success).orElseGet(() -> Result.success(getNotCreatedCart()));
         } else {
             return Result.failure(CartErrors.invalidAction());
@@ -59,7 +59,7 @@ public class CartService {
 
     @Transactional
     public Result<Cart> updateCartItem(Cart cart, Product product, int quantity, boolean isIncreasingItemQuantity) {
-        if (!cart.isActive()) {
+        if (cart.isNotActive()) {
             return Result.failure(CartErrors.unableToUpdateCart());
         }
 

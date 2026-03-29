@@ -3,6 +3,9 @@ package com.chis.trugarden.domain.cart;
 import com.chis.trugarden.shared.result.Error;
 import lombok.experimental.UtilityClass;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @UtilityClass
 public class CartErrors {
     public static Error notFound(String sessionId) {
@@ -44,6 +47,46 @@ public class CartErrors {
         return Error.notFound(
                 "ITEM_NOT_IN_CART",
                 String.format("El producto con ID '%d' no se encuentra en el carrito.", productId)
+        );
+    }
+
+    public static Error cartNotActive() {
+        return Error.conflict(
+                "CART_NOT_ACTIVE",
+                "Tu carrito no está activo. Por favor, crea un nuevo carrito para continuar."
+        );
+    }
+
+    public static Error invalidCart() {
+        return Error.conflict(
+                "INVALID_CART",
+                "Algunos productos en tu carrito han cambiado. Por favor revísalo antes de continuar."
+        );
+    }
+
+    public static Error emptyCart() {
+        return Error.conflict(
+                "EMPTY_CART",
+                "Tu carrito está vacío. Agrega algunos productos antes de continuar."
+        );
+    }
+
+    public static Error itemsOutOfStock(Set<CartItem> items) {
+        String productsMessage = items.stream()
+                .map(item -> item.getProduct().getName() +
+                        " (disponible: " + item.getProduct().getStock() + ")")
+                .collect(Collectors.joining(", "));
+
+        return Error.conflict(
+                "ITEMS_OUT_OF_STOCK",
+                "Los siguientes productos no tienen stock suficiente: " + productsMessage
+        );
+    }
+
+    public static Error sessionMismatch() {
+        return Error.conflict(
+                "SESSION_MISMATCH",
+                "El ID de sesión proporcionado no coincide con el del carrito."
         );
     }
 }

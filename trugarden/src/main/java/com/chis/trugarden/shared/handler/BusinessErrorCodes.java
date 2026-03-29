@@ -18,7 +18,10 @@ public enum BusinessErrorCodes {
     MALFORMED_REQUEST("MALFORMED_REQUEST", HttpStatus.BAD_REQUEST, "Malformed or missing request body"),
     METHOD_NOT_ALLOWED("METHOD_NOT_ALLOWED", HttpStatus.METHOD_NOT_ALLOWED, "HTTP method not allowed"),
     RESOURCE_NOT_FOUND("RESOURCE_NOT_FOUND", HttpStatus.NOT_FOUND, "The requested resource was not found"),
-    INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado. Inténtalo de nuevo más tarde")
+    INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado. Inténtalo de nuevo más tarde"),
+    UNSUPPORTED_PAYMENT_PROVIDER("UNSUPPORTED_PAYMENT_PROVIDER", HttpStatus.BAD_REQUEST, "Proveedor de pago no soportado"),
+    PAYMENT_CLIENT_ERROR("PAYMENT_CLIENT_ERROR", HttpStatus.BAD_REQUEST, "Error en la solicitud de pago"),
+    PAYMENT_PROVIDER_ERROR("PAYMENT_PROVIDER_ERROR", HttpStatus.BAD_GATEWAY, "Error del proveedor de pago. Inténtalo de nuevo más tarde")
     ;
     private final String code;
     private final String description;

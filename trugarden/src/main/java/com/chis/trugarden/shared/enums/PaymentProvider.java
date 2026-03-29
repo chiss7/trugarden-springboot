@@ -1,6 +1,6 @@
 package com.chis.trugarden.shared.enums;
 
-public enum PaymentMethod {
-    RAZORPAY,
+public enum PaymentProvider {
+    PAYPHONE,
     STRIPE
 }

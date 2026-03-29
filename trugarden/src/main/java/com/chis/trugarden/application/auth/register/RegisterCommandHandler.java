@@ -54,7 +54,8 @@ public class RegisterCommandHandler {
                 null,
                 Email.of(command.email()),
                 Password.ofHashed(passwordEncoder.encode(command.password())),
-                Set.of(roleOpt.get())
+                Set.of(roleOpt.get()),
+                null
         );
 
         User savedUser = userRepository.save(user);

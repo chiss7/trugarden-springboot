@@ -32,16 +32,17 @@ public class OrderEntity {
     @ManyToOne
     private UserEntity user;
 
+    private String sessionId;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItemEntity> orderItems = new java.util.ArrayList<>();
 
     @ManyToOne
     private AddressEntity shippingAddress;
 
-    @Embedded
-    private PaymentDetailsEntity paymentDetails = new PaymentDetailsEntity();
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private PaymentOrderEntity payment;
 
-    private BigDecimal totalOriginalPrice;
     private BigDecimal subtotal;
     private BigDecimal totalTax;
     private BigDecimal discountPercentage;

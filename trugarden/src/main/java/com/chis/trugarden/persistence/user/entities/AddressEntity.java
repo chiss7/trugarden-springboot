@@ -14,10 +14,16 @@ public class AddressEntity {
     @Id
     @GeneratedValue
     private Long id;
-    private String street;
+    private String principalStreet;
+    private String secondaryStreet;
     private String houseNumber;
     private String zipCode;
+    private String sector;
+    private String city;
 
-    @OneToOne(mappedBy = "address")
-    private UserEntity users;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
+    private String sessionId;
 }

@@ -4,6 +4,9 @@ import com.chis.trugarden.shared.api.GenericResponse;
 import com.chis.trugarden.shared.exception.ExpiredTokenException;
 import com.chis.trugarden.shared.exception.InvalidTokenException;
 import com.chis.trugarden.shared.exception.PasswordMismatchException;
+import com.chis.trugarden.shared.exception.PaymentClientException;
+import com.chis.trugarden.shared.exception.PaymentProviderException;
+import com.chis.trugarden.shared.exception.UnsupportedPaymentProviderException;
 import com.chis.trugarden.shared.exception.UserAlreadyEnabledException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -84,6 +87,33 @@ public class GlobalExceptionHandler {
                 .body(GenericResponse.createErrorResponse(
                         BusinessErrorCodes.ACCOUNT_ALREADY_ENABLED.getCode(),
                         BusinessErrorCodes.ACCOUNT_ALREADY_ENABLED.getDescription()
+                ));
+    }
+
+    @ExceptionHandler(UnsupportedPaymentProviderException.class)
+    public ResponseEntity<GenericResponse<?>> handleException(UnsupportedPaymentProviderException exp) {
+        return ResponseEntity.status(BusinessErrorCodes.UNSUPPORTED_PAYMENT_PROVIDER.getHttpStatus())
+                .body(GenericResponse.createErrorResponse(
+                        BusinessErrorCodes.UNSUPPORTED_PAYMENT_PROVIDER.getCode(),
+                        BusinessErrorCodes.UNSUPPORTED_PAYMENT_PROVIDER.getDescription()
+                ));
+    }
+
+    @ExceptionHandler(PaymentClientException.class)
+    public ResponseEntity<GenericResponse<?>> handleException(PaymentClientException exp) {
+        return ResponseEntity.status(BusinessErrorCodes.PAYMENT_CLIENT_ERROR.getHttpStatus())
+                .body(GenericResponse.createErrorResponse(
+                        BusinessErrorCodes.PAYMENT_CLIENT_ERROR.getCode(),
+                        BusinessErrorCodes.PAYMENT_CLIENT_ERROR.getDescription()
+                ));
+    }
+
+    @ExceptionHandler(PaymentProviderException.class)
+    public ResponseEntity<GenericResponse<?>> handleException(PaymentProviderException exp) {
+        return ResponseEntity.status(BusinessErrorCodes.PAYMENT_PROVIDER_ERROR.getHttpStatus())
+                .body(GenericResponse.createErrorResponse(
+                        BusinessErrorCodes.PAYMENT_PROVIDER_ERROR.getCode(),
+                        BusinessErrorCodes.PAYMENT_PROVIDER_ERROR.getDescription()
                 ));
     }
 
