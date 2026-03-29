@@ -12,6 +12,7 @@ public interface TokenEntityMapper {
 
     default TokenEntity toEntity(Token token) {
         TokenEntity tokenEntity = new TokenEntity();
+        tokenEntity.setId(token.getId());
         tokenEntity.setToken(token.getToken());
         tokenEntity.setCreatedAt(token.getCreatedAt());
         tokenEntity.setExpiresAt(token.getExpiresAt());

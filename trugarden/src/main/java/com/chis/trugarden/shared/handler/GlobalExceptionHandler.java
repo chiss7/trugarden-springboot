@@ -1,13 +1,7 @@
 package com.chis.trugarden.shared.handler;
 
 import com.chis.trugarden.shared.api.GenericResponse;
-import com.chis.trugarden.shared.exception.ExpiredTokenException;
-import com.chis.trugarden.shared.exception.InvalidTokenException;
-import com.chis.trugarden.shared.exception.PasswordMismatchException;
-import com.chis.trugarden.shared.exception.PaymentClientException;
-import com.chis.trugarden.shared.exception.PaymentProviderException;
-import com.chis.trugarden.shared.exception.UnsupportedPaymentProviderException;
-import com.chis.trugarden.shared.exception.UserAlreadyEnabledException;
+import com.chis.trugarden.shared.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
@@ -114,6 +108,15 @@ public class GlobalExceptionHandler {
                 .body(GenericResponse.createErrorResponse(
                         BusinessErrorCodes.PAYMENT_PROVIDER_ERROR.getCode(),
                         BusinessErrorCodes.PAYMENT_PROVIDER_ERROR.getDescription()
+                ));
+    }
+
+    @ExceptionHandler(EmailSendException.class)
+    public ResponseEntity<GenericResponse<?>> handleException(EmailSendException exp) {
+        return ResponseEntity.status(BusinessErrorCodes.EMAIL_SEND_ERROR.getHttpStatus())
+                .body(GenericResponse.createErrorResponse(
+                        BusinessErrorCodes.EMAIL_SEND_ERROR.getCode(),
+                        BusinessErrorCodes.EMAIL_SEND_ERROR.getDescription()
                 ));
     }
 

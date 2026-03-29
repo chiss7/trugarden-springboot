@@ -15,15 +15,6 @@ services:
       - trugarden_network
     restart: unless-stopped
 
-  mail-dev:
-    container_name: mail-dev-tru
-    image: maildev/maildev
-    ports:
-      - 1080:1080  # For UI
-      - 1025:1025  # For SMTP server
-    networks:
-      - trugarden_network
-
 networks:
   trugarden_network:
     driver: bridge

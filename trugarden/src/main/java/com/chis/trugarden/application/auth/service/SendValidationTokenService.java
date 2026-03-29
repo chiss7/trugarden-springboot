@@ -2,11 +2,15 @@ package com.chis.trugarden.application.auth.service;
 
 import com.chis.trugarden.application.auth.abstractions.TokenRepository;
 import com.chis.trugarden.application.email.EmailService;
+import com.chis.trugarden.application.email.EmailTemplates;
+import com.chis.trugarden.application.email.dtos.EmailMessage;
 import com.chis.trugarden.domain.user.Token;
 import com.chis.trugarden.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.security.SecureRandom;
 import java.time.Clock;
@@ -18,18 +22,27 @@ public class SendValidationTokenService {
     private final EmailService emailService;
     private final Clock clock;
     private final TokenRepository tokenRepository;
+    private final SpringTemplateEngine templateEngine;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
 
     public void sendValidationEmail(User user) {
         String newToken = generateAndSaveActivationToken(user);
-        emailService.sendActivateAccountEmail(
-                user.getEmail().value(),
-                user.getFullName(),
-                activationUrl,
-                newToken
+        Context context = new Context();
+        context.setVariable("username", user.getFullName());
+        context.setVariable("activation_code", newToken);
+        context.setVariable("confirmation_url", activationUrl);
+        String htmlBody = templateEngine.process(
+                EmailTemplates.ACTIVATE_ACCOUNT.getTemplate(),
+                context
         );
+        EmailMessage message = new EmailMessage(
+                user.getEmail().value(),
+                EmailTemplates.ACTIVATE_ACCOUNT.getSubject(),
+                htmlBody
+        );
+        emailService.send(message);
     }
 
     private String generateAndSaveActivationToken(User user) {

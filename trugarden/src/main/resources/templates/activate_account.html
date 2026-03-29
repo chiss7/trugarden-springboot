@@ -1,53 +1,334 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activate your account</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activa tu cuenta · TruGarden</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f0f4ee;
+            font-family: 'DM Sans', sans-serif;
+            color: #1a2416;
+            padding: 40px 16px;
         }
-        .container {
-            max-width: 600px;
-            margin: 10px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+        .wrapper {
+            max-width: 580px;
+            margin: 0 auto;
         }
-        .activation-code {
-            font-size: 36px;
+
+        /* ── Header ── */
+        .header {
             text-align: center;
-            margin-bottom: 20px;
+            padding-bottom: 28px;
         }
-        .activation-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .activation-link a {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
+
+        .logo-mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             text-decoration: none;
-            border-radius: 5px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: #2d5a27;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: #c8e6b0;
+        }
+
+        .logo-text {
+            font-family: 'DM Serif Display', serif;
+            font-size: 26px;
+            color: #2d5a27;
+            letter-spacing: -0.3px;
+        }
+
+        /* ── Card ── */
+        .card {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 32px rgba(45, 90, 39, 0.10);
+        }
+
+        .card-hero {
+            background: linear-gradient(135deg, #2d5a27 0%, #3d7a35 60%, #4e9442 100%);
+            padding: 44px 48px 36px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-hero::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 220px; height: 220px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .card-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; left: -20px;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+        }
+
+        .hero-tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            color: #c8e6b0;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+
+        .hero-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 32px;
+            color: #ffffff;
+            line-height: 1.2;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-subtitle {
+            margin-top: 10px;
+            color: rgba(255,255,255,0.75);
+            font-size: 15px;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Body ── */
+        .card-body {
+            padding: 40px 48px;
+        }
+
+        .greeting {
+            font-size: 17px;
+            font-weight: 500;
+            color: #1a2416;
+            margin-bottom: 12px;
+        }
+
+        .message {
+            font-size: 15px;
+            color: #4a5e44;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        /* ── Code block ── */
+        .code-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: #7a9e72;
+            margin-bottom: 10px;
+        }
+
+        .code-box {
+            background: #f0f4ee;
+            border: 1.5px dashed #a8c99e;
+            border-radius: 14px;
+            padding: 20px 24px;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .code-digits {
+            font-family: 'DM Serif Display', serif;
+            font-size: 48px;
+            letter-spacing: 10px;
+            color: #2d5a27;
+            line-height: 1;
+        }
+
+        .code-expires {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #8aaa82;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: #e2eade;
+        }
+
+        .divider-text {
+            font-size: 12px;
+            color: #9ab690;
+            white-space: nowrap;
+        }
+
+        /* ── CTA button ── */
+        .cta-wrapper {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: #2d5a27;
+            color: #ffffff !important;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 15px 40px;
+            border-radius: 50px;
+            letter-spacing: 0.2px;
+            transition: background 0.2s;
+        }
+
+        /* ── Notice ── */
+        .notice {
+            background: #fdf8ee;
+            border-left: 3px solid #d4a843;
+            border-radius: 0 10px 10px 0;
+            padding: 14px 18px;
+            margin-bottom: 32px;
+        }
+
+        .notice p {
+            font-size: 13px;
+            color: #7a6530;
+            line-height: 1.6;
+        }
+
+        .notice strong {
+            color: #5c4a20;
+        }
+
+        /* ── Footer ── */
+        .card-footer {
+            border-top: 1px solid #eaf0e7;
+            padding: 28px 48px;
+            background: #fafcf9;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #9ab690;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        .footer-text a {
+            color: #5a8a52;
+            text-decoration: none;
+        }
+
+        .footer-brand {
+            margin-top: 16px;
+            text-align: center;
+            font-family: 'DM Serif Display', serif;
+            font-size: 13px;
+            color: #c2d8be;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 520px) {
+            .card-hero, .card-body, .card-footer { padding-left: 28px; padding-right: 28px; }
+            .hero-title { font-size: 26px; }
+            .code-digits { font-size: 38px; letter-spacing: 6px; }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Account Activation</h1>
-    <p th:text="'Hello ' + ${username} + ','"></p>
-    <p>Thank you for signing up! Please use the following activation code to activate your account:</p>
-    <div class="activation-code"><span th:text="${activation_code}"></span></div>
-    <div class="activation-link">
-        <a th:href="${confirmation_url}" target="_blank">Activate your account</a>
+<div class="wrapper">
+
+    <!-- Logo -->
+    <div class="header">
+      <span class="logo-mark">
+        <span class="logo-text">TruGarden</span>
+      </span>
     </div>
+
+    <!-- Card -->
+    <div class="card">
+
+        <!-- Hero -->
+        <div class="card-hero">
+            <div class="hero-tag">Verificación de cuenta</div>
+            <div class="hero-title">Activa tu<br/>cuenta</div>
+            <div class="hero-subtitle">Estás a un paso de comenzar</div>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body">
+
+            <p class="greeting" th:text="'¡Hola, ' + ${username} + '!'">¡Hola, usuario!</p>
+
+            <p class="message">
+                Gracias por unirte a TruGarden. Para completar tu registro y comenzar a explorar nuestra colección de plantas, ingresa el código de activación que encontrarás a continuación e ingrésalo dando click en el botón para activar la cuenta.
+            </p>
+
+            <!-- Code -->
+            <p class="code-label">Tu código de activación</p>
+            <div class="code-box">
+                <div class="code-digits" th:text="${activation_code}">123456</div>
+                <p class="code-expires">Válido por 15 minutos</p>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-wrapper">
+                <a th:href="${confirmation_url}" href="#" class="cta-btn">
+                    ✦ &nbsp;Activar mi cuenta
+                </a>
+            </div>
+
+            <!-- Notice -->
+            <div class="notice">
+                <p>
+                    <strong>¿No solicitaste esto?</strong> Si no creaste una cuenta en TruGarden, puedes ignorar este mensaje con seguridad. Tu información está protegida.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer">
+            <p class="footer-text">
+                Este correo fue enviado a ti porque alguien se registró con esta dirección en TruGarden.<br/>
+                Si tienes dudas, contáctanos en <a href="mailto:soporte@trugarden.com">soporte@trugarden.com</a>
+            </p>
+            <p class="footer-brand">TruGarden · Plantas con propósito</p>
+        </div>
+
+    </div>
+
 </div>
 </body>
 </html>
