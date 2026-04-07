@@ -1,4 +1,4 @@
-package com.chis.trugarden.application.email;
+package com.chis.trugarden.shared.enums;
 
 import lombok.Getter;
 

@@ -23,10 +23,8 @@ public class OrderController extends ControllerBase {
 
     @PostMapping
     public ResponseEntity<GenericResponse<?>> createOrder(
-            @RequestAttribute(value = "SESSION_ID_ATTR", required = false) String sessionId,
             @RequestBody @Validated CreateOrderRequest request
     ) {
-        request.setSessionId(sessionId);
         Result<CreateOrderResult> result = commandGateway.sendAndWait(createOrderMapper.toCommand(request));
         return result.isSuccess() ?
                 success(createOrderMapper.toResponse(result.getValue())) :

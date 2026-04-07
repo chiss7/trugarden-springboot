@@ -1,6 +1,6 @@
 package com.chis.trugarden.application.cart.update_cart_item;
 
-import com.chis.trugarden.application.cart.CartService;
+import com.chis.trugarden.application.cart.service.CartService;
 import com.chis.trugarden.application.product.abstractions.ProductRepository;
 import com.chis.trugarden.domain.cart.Cart;
 import com.chis.trugarden.domain.cart.CartErrors;

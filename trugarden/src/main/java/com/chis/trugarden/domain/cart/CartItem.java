@@ -1,5 +1,6 @@
 package com.chis.trugarden.domain.cart;
 
+import com.chis.trugarden.domain.order.OrderItem;
 import com.chis.trugarden.domain.product.Product;
 import org.jmolecules.ddd.annotation.Entity;
 
@@ -99,6 +100,23 @@ public class CartItem {
             Long userId
     ) {
         return fromProduct(null, cartId, product, quantity, userId);
+    }
+
+    public static CartItem fromOrderItem(
+            Long id,
+            Long cartId,
+            OrderItem orderItem
+    ) {
+        return new CartItem(
+                id,
+                cartId,
+                orderItem.getProduct(),
+                orderItem.getQuantity(),
+                orderItem.getOriginalPrice(),
+                orderItem.getUnitPrice(),
+                orderItem.getTaxPercentage(),
+                orderItem.getUserId()
+        );
     }
 
     public Long getId() {

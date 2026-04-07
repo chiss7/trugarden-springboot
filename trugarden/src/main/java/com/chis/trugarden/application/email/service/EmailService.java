@@ -1,4 +1,4 @@
-package com.chis.trugarden.application.email;
+package com.chis.trugarden.application.email.service;
 
 import com.chis.trugarden.application.email.dtos.EmailMessage;
 import com.chis.trugarden.application.email.factory.EmailProviderFactory;

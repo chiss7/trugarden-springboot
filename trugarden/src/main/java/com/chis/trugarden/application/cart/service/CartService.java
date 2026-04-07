@@ -1,4 +1,4 @@
-package com.chis.trugarden.application.cart;
+package com.chis.trugarden.application.cart.service;
 
 import com.chis.trugarden.application.cart.abstractions.CartRepository;
 import com.chis.trugarden.domain.cart.Cart;
@@ -81,6 +81,52 @@ public class CartService {
         }
 
         return Result.success(cartRepository.save(updatedCart));
+    }
+
+    public Result<Cart> restoreToActiveCart(String sessionId) {
+        boolean isAuthenticated = AuthenticationHelper.isAuthenticated();
+
+        if (!isAuthenticated && sessionId != null) {
+            Optional<Cart> cartOpt = cartRepository.findBySessionIdAndStatus(sessionId, CartStatus.PENDING_PAYMENT);
+            if (cartOpt.isEmpty()) {
+                return Result.failure(CartErrors.notFound());
+            }
+            Cart activeCart = cartOpt.get().withStatus(CartStatus.ACTIVE);
+            return Result.success(cartRepository.save(activeCart));
+        } else if (isAuthenticated) {
+            Long userId = AuthenticationHelper.getCurrentUserId();
+            Optional<Cart> cartOpt = cartRepository.findByUserIdAndStatus(userId, CartStatus.PENDING_PAYMENT);
+            if (cartOpt.isEmpty()) {
+                return Result.failure(CartErrors.notFound());
+            }
+            Cart activeCart = cartOpt.get().withStatus(CartStatus.ACTIVE);
+            return Result.success(cartRepository.save(activeCart));
+        } else {
+            return Result.failure(CartErrors.invalidAction());
+        }
+    }
+
+    public Result<Cart> markCartAsCheckedOut(String sessionId) {
+        boolean isAuthenticated = AuthenticationHelper.isAuthenticated();
+
+        if (!isAuthenticated && sessionId != null) {
+            Optional<Cart> cartOpt = cartRepository.findBySessionIdAndStatus(sessionId, CartStatus.PENDING_PAYMENT);
+            if (cartOpt.isEmpty()) {
+                return Result.failure(CartErrors.notFound());
+            }
+            Cart checkedOutCart = cartOpt.get().withStatus(CartStatus.CHECKED_OUT);
+            return Result.success(cartRepository.save(checkedOutCart));
+        } else if (isAuthenticated) {
+            Long userId = AuthenticationHelper.getCurrentUserId();
+            Optional<Cart> cartOpt = cartRepository.findByUserIdAndStatus(userId, CartStatus.PENDING_PAYMENT);
+            if (cartOpt.isEmpty()) {
+                return Result.failure(CartErrors.notFound());
+            }
+            Cart checkedOutCart = cartOpt.get().withStatus(CartStatus.CHECKED_OUT);
+            return Result.success(cartRepository.save(checkedOutCart));
+        } else {
+            return Result.failure(CartErrors.invalidAction());
+        }
     }
 
     private Cart getNotCreatedCart() {

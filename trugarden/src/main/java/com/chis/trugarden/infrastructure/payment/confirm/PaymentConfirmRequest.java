@@ -1,6 +1,6 @@
 package com.chis.trugarden.infrastructure.payment.confirm;
 
-public record PayphoneConfirmRequest(
+public record PaymentConfirmRequest(
         Long id,
         String clientTxId
 ) {}

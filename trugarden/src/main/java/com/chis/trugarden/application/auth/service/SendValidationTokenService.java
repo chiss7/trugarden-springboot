@@ -1,8 +1,8 @@
 package com.chis.trugarden.application.auth.service;
 
 import com.chis.trugarden.application.auth.abstractions.TokenRepository;
-import com.chis.trugarden.application.email.EmailService;
-import com.chis.trugarden.application.email.EmailTemplates;
+import com.chis.trugarden.application.email.service.EmailService;
+import com.chis.trugarden.shared.enums.EmailTemplates;
 import com.chis.trugarden.application.email.dtos.EmailMessage;
 import com.chis.trugarden.domain.user.Token;
 import com.chis.trugarden.domain.user.User;
@@ -46,11 +46,11 @@ public class SendValidationTokenService {
     }
 
     private String generateAndSaveActivationToken(User user) {
-        String generatedToken = generateActivationToken(6);
+        String generatedToken = generateActivationToken(8);
         Token token = Token.ofNew(
                 generatedToken,
                 LocalDateTime.now(clock),
-                LocalDateTime.now(clock).plusMinutes(15),
+                LocalDateTime.now(clock).plusMinutes(10),
                 user
         );
         return tokenRepository.save(token).getToken();

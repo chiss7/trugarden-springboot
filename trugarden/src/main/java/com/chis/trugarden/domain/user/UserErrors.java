@@ -25,4 +25,11 @@ public class UserErrors {
                 String.format("El usuario con email '%s' ya está habilitado.", email)
         );
     }
+
+    public static Error notAuthenticated() {
+        return Error.conflict(
+                "USER_NOT_AUTHENTICATED",
+                "El usuario no está autenticado."
+        );
+    }
 }

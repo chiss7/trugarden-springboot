@@ -1,4 +1,4 @@
-package com.chis.trugarden.application.product;
+package com.chis.trugarden.application.product.service;
 
 import com.chis.trugarden.application.product.abstractions.ProductRepository;
 import com.chis.trugarden.domain.cart.CartItem;
@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import jakarta.transaction.Transactional;
 import java.util.*;
 
 @Slf4j
@@ -50,6 +51,37 @@ public class StockService {
         }
 
         productRepository.saveAll(productsToUpdate);
+
+        return Result.success(null);
+    }
+
+    @Transactional
+    public Result<Void> restoreStock(Set<CartItem> items) {
+        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+            throw new IllegalStateException("restoreStock must be called within a transaction");
+        }
+
+        List<CartItem> sortedItems = items.stream()
+                .sorted(Comparator.comparing(item -> item.getProduct().getId()))
+                .toList();
+
+        List<Product> productsToUpdate = new ArrayList<>();
+        for (CartItem item : sortedItems) {
+            Optional<Product> productOpt = productRepository
+                    .findByIdWithLock(item.getProduct().getId());
+
+            if (productOpt.isEmpty()) {
+                log.warn("Product not found for restore stock: {}", item.getProduct().getId());
+                return Result.failure(ProductErrors.notFound(item.getProduct().getId()));
+            }
+
+            Product product = productOpt.get();
+            Product updated = product.withStock(product.getStock() + item.getQuantity());
+            productsToUpdate.add(updated);
+        }
+
+        productRepository.saveAll(productsToUpdate);
+        log.info("Stock restored successfully for {} items", productsToUpdate.size());
 
         return Result.success(null);
     }

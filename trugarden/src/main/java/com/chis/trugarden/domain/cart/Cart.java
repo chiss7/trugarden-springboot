@@ -369,6 +369,14 @@ public class Cart {
         );
     }
 
+    public Cart withUser(User user) {
+        return new Cart(
+                id, user, sessionId, subtotal, totalTax,
+                discountPercentage, couponDiscountAmount, grandTotal,
+                quantity, couponCode, status, cartItems
+        );
+    }
+
     /**
      * Recalculates all cart totals based on the given items.
      * subtotal = sum of item subtotals (base prices without tax)
@@ -426,6 +434,11 @@ public class Cart {
         return items.stream().mapToInt(CartItem::getQuantity).sum();
     }
 
+    /**
+     * @deprecated Use StockReservationService.getItemsWithInsufficientStock() instead.
+     * This method only checks physical stock, not available stock (considering active reservations).
+     */
+    @Deprecated
     public Set<CartItem> getItemsWithoutStock() {
         return cartItems.stream()
                 .filter(item -> item.getQuantity() > item.getProduct().getStock())

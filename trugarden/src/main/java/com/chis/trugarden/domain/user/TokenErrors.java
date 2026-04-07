@@ -11,4 +11,11 @@ public class TokenErrors {
                 String.format("No se encontró un token '%s'. Proporciona uno nuevo.", token)
         );
     }
+
+    public static Error notValid(String token) {
+        return Error.conflict(
+                "TOKEN_INVALID",
+                String.format("El token '%s' no es válido.", token)
+        );
+    }
 }

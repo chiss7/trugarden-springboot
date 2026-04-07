@@ -257,6 +257,26 @@ public class Order {
         );
     }
 
+    public Order withStatus(OrderStatus newStatus) {
+        return Order.of(
+                this.id,
+                this.orderId,
+                this.user,
+                this.sessionId,
+                this.subtotal,
+                this.totalTax,
+                this.discountPercentage,
+                this.couponDiscountAmount,
+                this.grandTotal,
+                newStatus,
+                this.orderDate,
+                this.deliveryDate,
+                this.orderItems,
+                this.shippingAddress,
+                this.payment
+        );
+    }
+
     @Override
     public String toString() {
         return "Order{" +

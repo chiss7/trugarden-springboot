@@ -112,6 +112,40 @@ public class Payment {
         );
     }
 
+    public Payment withCompletedStatus(
+            String paymentId,
+            String authorizationCode,
+            String transactionStatus
+    ) {
+        return new Payment(
+                this.id,
+                this.orderId,
+                paymentId,
+                this.paymentUrl,
+                this.amount,
+                this.currency,
+                PaymentStatus.COMPLETED,
+                authorizationCode,
+                transactionStatus,
+                null
+        );
+    }
+
+    public Payment withCanceledStatus(String failureReason) {
+        return new Payment(
+                this.id,
+                this.orderId,
+                null,
+                this.paymentUrl,
+                this.amount,
+                this.currency,
+                PaymentStatus.CANCELED,
+                null,
+                null,
+                failureReason
+        );
+    }
+
     public Long getId() {
         return id;
     }

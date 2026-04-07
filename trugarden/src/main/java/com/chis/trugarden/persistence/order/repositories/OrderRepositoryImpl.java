@@ -33,4 +33,14 @@ public class OrderRepositoryImpl implements OrderRepository {
         OrderEntity orderEntity = orderEntityMapper.toEntity(order);
         return orderEntityMapper.toDomain(orderJpaRepository.save(orderEntity));
     }
+
+    @Override
+    public Optional<Order> findByOrderId(String orderId) {
+        return orderJpaRepository.findByOrderId(orderId)
+                .map(orderEntityMapper::toDomain)
+                .or(() -> {
+                    log.warn("Order with orderId {} not found", orderId);
+                    return Optional.empty();
+                });
+    }
 }

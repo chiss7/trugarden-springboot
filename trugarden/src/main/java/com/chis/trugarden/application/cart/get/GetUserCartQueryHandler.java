@@ -1,6 +1,6 @@
 package com.chis.trugarden.application.cart.get;
 
-import com.chis.trugarden.application.cart.CartService;
+import com.chis.trugarden.application.cart.service.CartService;
 import com.chis.trugarden.domain.cart.Cart;
 import com.chis.trugarden.infrastructure.security.AuthenticationHelper;
 import com.chis.trugarden.shared.enums.CartStatus;

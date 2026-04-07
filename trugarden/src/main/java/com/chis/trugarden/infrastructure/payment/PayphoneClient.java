@@ -3,8 +3,8 @@ package com.chis.trugarden.infrastructure.payment;
 import com.chis.trugarden.application.order.payment.dtos.payphone.PayphoneErrorResponse;
 import com.chis.trugarden.application.order.payment.dtos.payphone.PayphoneRequest;
 import com.chis.trugarden.application.order.payment.dtos.payphone.PayphoneResponse;
-import com.chis.trugarden.infrastructure.payment.confirm.PayphoneConfirmRequest;
-import com.chis.trugarden.infrastructure.payment.confirm.PayphoneConfirmResponse;
+import com.chis.trugarden.infrastructure.payment.confirm.PaymentConfirmRequest;
+import com.chis.trugarden.infrastructure.payment.confirm.PaymentConfirmResponse;
 import com.chis.trugarden.shared.exception.PaymentClientException;
 import com.chis.trugarden.shared.exception.PaymentProviderException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,13 +57,13 @@ public class PayphoneClient {
         }
     }
 
-    public PayphoneConfirmResponse confirmPayment(Long id, String clientTransactionId) {
+    public PaymentConfirmResponse confirmPayment(Long id, String clientTransactionId) {
         try {
             return restClient.post()
                     .uri("/button/V2/Confirm")
-                    .body(new PayphoneConfirmRequest(id, clientTransactionId))
+                    .body(new PaymentConfirmRequest(id, clientTransactionId))
                     .retrieve()
-                    .body(PayphoneConfirmResponse.class);
+                    .body(PaymentConfirmResponse.class);
 
         } catch (HttpClientErrorException e) {
             String body = e.getResponseBodyAsString();

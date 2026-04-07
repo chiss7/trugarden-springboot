@@ -35,6 +35,10 @@ public class ActivationCommandHandler {
         }
         Token token = tokenOpt.get();
 
+        if (token.getValidatedAt() != null) {
+            return Result.failure(TokenErrors.notValid(command.token()));
+        }
+
         Optional<User> userOpt = userRepository.findByEmail(token.getUser().getEmail().value());
         if (userOpt.isEmpty()) {
             return Result.failure(UserErrors.notFound(token.getUser().getEmail().value()));
@@ -45,7 +49,7 @@ public class ActivationCommandHandler {
             return Result.failure(UserErrors.alreadyEnabled(user.getEmail().value()));
         }
 
-        if (LocalDateTime.now().isAfter(token.getExpiresAt())) {
+        if (LocalDateTime.now(clock).isAfter(token.getExpiresAt())) {
             sendValidationTokenService.sendValidationEmail(token.getUser());
             throw new ExpiredTokenException("El token ha expirado. Se ha enviado un nuevo correo de validación.");
         }

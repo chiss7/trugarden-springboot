@@ -2,11 +2,14 @@ package com.chis.trugarden.api.auth;
 
 import com.chis.trugarden.api.auth.login.AuthenticationMapper;
 import com.chis.trugarden.api.auth.login.AuthenticationRequest;
+import com.chis.trugarden.api.auth.oauth.ExchangeCodeMapper;
+import com.chis.trugarden.api.auth.oauth.ExchangeCodeRequest;
 import com.chis.trugarden.api.auth.register.RegisterMapper;
 import com.chis.trugarden.api.auth.register.RegistrationResponse;
 import com.chis.trugarden.api.auth.register.RegistrationRequest;
 import com.chis.trugarden.application.auth.activate.ActivationCommand;
 import com.chis.trugarden.application.auth.login.LoginResult;
+import com.chis.trugarden.application.auth.oauth.ExchangeCodeResult;
 import com.chis.trugarden.shared.api.ControllerBase;
 import com.chis.trugarden.shared.api.GenericResponse;
 import com.chis.trugarden.shared.result.Result;
@@ -25,6 +28,7 @@ public class AuthenticationController extends ControllerBase {
     private final CommandGateway commandGateway;
     private final AuthenticationMapper authenticationMapper;
     private final RegisterMapper registerMapper;
+    private final ExchangeCodeMapper exchangeCodeMapper;
 
     @PostMapping("/register")
     public ResponseEntity<GenericResponse<?>> register(@RequestBody @Valid RegistrationRequest request) {
@@ -47,6 +51,14 @@ public class AuthenticationController extends ControllerBase {
         Result<Void> result = commandGateway.sendAndWait(new ActivationCommand(token));
         return result.isSuccess() ?
                 success("Cuenta activada exitosamente.") :
+                error(result.getError());
+    }
+
+    @PostMapping("/oauth/exchange")
+    public ResponseEntity<GenericResponse<?>> exchangeOAuthCode(@RequestBody @Valid ExchangeCodeRequest request) {
+        Result<ExchangeCodeResult> result = commandGateway.sendAndWait(exchangeCodeMapper.toCommand(request));
+        return result.isSuccess() ?
+                success(exchangeCodeMapper.toResponse(result.getValue())) :
                 error(result.getError());
     }
 }

@@ -5,6 +5,8 @@ import com.chis.trugarden.application.order.payment.dtos.PaymentResult;
 import com.chis.trugarden.application.order.payment.dtos.payphone.PayphoneRequest;
 import com.chis.trugarden.application.order.payment.dtos.payphone.PayphoneResponse;
 import com.chis.trugarden.infrastructure.payment.PayphoneClient;
+import com.chis.trugarden.infrastructure.payment.confirm.PaymentConfirmRequest;
+import com.chis.trugarden.infrastructure.payment.confirm.PaymentConfirmResponse;
 import com.chis.trugarden.shared.enums.PaymentProvider;
 import com.chis.trugarden.shared.properties.PayphoneProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +42,11 @@ public class PayphonePaymentStrategy implements PaymentStrategy {
                 .provider(PaymentProvider.PAYPHONE)
                 .rawResponse(toJson(response))
                 .build();
+    }
+
+    @Override
+    public PaymentConfirmResponse confirmPayment(PaymentConfirmRequest request) {
+        return payphoneClient.confirmPayment(request.id(), request.clientTxId());
     }
 
     private PayphoneRequest toPayphoneRequest(PaymentRequest req) {

@@ -1,4 +1,4 @@
-package com.chis.trugarden.application.order;
+package com.chis.trugarden.application.order.service;
 
 import com.chis.trugarden.application.cart.abstractions.CartRepository;
 import com.chis.trugarden.application.order.abstractions.OrderRepository;
@@ -7,16 +7,17 @@ import com.chis.trugarden.application.order.payment.dtos.PaymentRequest;
 import com.chis.trugarden.application.order.payment.dtos.PaymentResult;
 import com.chis.trugarden.application.order.payment.factory.PaymentStrategyFactory;
 import com.chis.trugarden.application.order.payment.strategy.PaymentStrategy;
-import com.chis.trugarden.application.product.StockService;
-import com.chis.trugarden.application.user.abstractions.AddressRepository;
+import com.chis.trugarden.application.stock.service.StockReservationService;
 import com.chis.trugarden.application.user.abstractions.UserRepository;
 import com.chis.trugarden.domain.cart.Cart;
 import com.chis.trugarden.domain.order.Order;
 import com.chis.trugarden.domain.order.OrderItem;
 import com.chis.trugarden.domain.order.Payment;
+import com.chis.trugarden.domain.stock.StockReservation;
 import com.chis.trugarden.domain.user.Address;
 import com.chis.trugarden.domain.user.AddressErrors;
 import com.chis.trugarden.domain.user.User;
+import com.chis.trugarden.domain.user.UserErrors;
 import com.chis.trugarden.infrastructure.security.AuthenticationHelper;
 import com.chis.trugarden.shared.enums.Currency;
 import com.chis.trugarden.shared.enums.PaymentProvider;
@@ -29,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -39,20 +40,14 @@ public class OrderService {
     private final PaymentStrategyFactory paymentStrategyFactory;
     private final PayphoneProperties payphoneProperties;
     private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
     private final CartRepository cartRepository;
-    private final StockService stockService;
+    private final StockReservationService stockReservationService;
 
     @Transactional
     public Result<CreateOrderResult> createOrder(Cart cart, Address shippingAddress) {
         Result<Address> addressResult = validateOrCreateAddress(shippingAddress, AuthenticationHelper.isAuthenticated(), cart.getUser());
         if (addressResult.isFailure()) {
             return Result.failure(addressResult.getError());
-        }
-
-        Result<Void> stockResult = stockService.deductStock(cart.getCartItems());
-        if (stockResult.isFailure()) {
-            return Result.failure(stockResult.getError());
         }
 
         Payment payment = Payment.ofNew(
@@ -62,11 +57,25 @@ public class OrderService {
                 PaymentStatus.PENDING
         );
 
-        Order order = Order.newFromCart(cart, addressResult.getValue(), payment);
+        Cart cartMarkedAsOrdered;
+        if (cart.getUser() != null) {
+            cartMarkedAsOrdered = cart.markAsPendingPayment();
+            cartRepository.save(cartMarkedAsOrdered);
+        } else {
+            cartMarkedAsOrdered = cart.markAsPendingPayment().withUser(AuthenticationHelper.getCurrentUser().getDomainUser());
+            cartRepository.save(cartMarkedAsOrdered);
+        }
+
+        Order order = Order.newFromCart(cartMarkedAsOrdered, addressResult.getValue(), payment);
         Order savedOrder = orderRepository.save(order);
 
-        Cart cartMarkedAsOrdered = cart.markAsPendingPayment();
-        cartRepository.save(cartMarkedAsOrdered);
+        Result<List<StockReservation>> reservationResult = stockReservationService
+                .createReservations(cartMarkedAsOrdered.getCartItems(), savedOrder.getId());
+        
+        if (reservationResult.isFailure()) {
+            log.error("Failed to create stock reservations for order: {}", savedOrder.getId());
+            return Result.failure(reservationResult.getError());
+        }
 
         // create payment link
         PaymentStrategy paymentStrategy = paymentStrategyFactory.getStrategy(PaymentProvider.PAYPHONE);
@@ -79,7 +88,8 @@ public class OrderService {
         Order orderWithPayment = savedOrder.withUpdatedPayment(paymentWithLink);
         orderRepository.save(orderWithPayment);
 
-        log.info("Order created successfully with id: {} for sessionId: {}", savedOrder.getId(), cart.getSessionId());
+        log.info("Order created successfully with id: {} with {} stock reservations",
+                savedOrder.getId(), reservationResult.getValue().size());
         return Result.success(new CreateOrderResult(orderWithPayment.getId(), result.getPaymentUrl()));
     }
 
@@ -102,22 +112,11 @@ public class OrderService {
             return Result.success(userAddress);
         }
 
-        if (shippingAddress.getId() == null) {
-            log.info("Creating address for guest user with sessionId: {}", shippingAddress.getSessionId());
-            return Result.success(addressRepository.save(shippingAddress));
-        }
-
-        Optional<Address> guestAddress = addressRepository.findByIdAndSessionId(shippingAddress.getId(), shippingAddress.getSessionId());
-        if (guestAddress.isEmpty()) {
-            log.error("Guest {} does not have address with id: {}", shippingAddress.getSessionId(), shippingAddress.getId());
-            return Result.failure(AddressErrors.notFound());
-        }
-
-        return Result.success(guestAddress.get());
+        return Result.failure(UserErrors.notAuthenticated());
     }
 
     private PaymentRequest buildPaymentRequest(Order order) {
-        String additionalData = order.getUser() != null ? "userId:" + order.getUser().getId() : "guestSession:" + order.getSessionId();
+        String additionalData = "userId:" + order.getUser().getId();
         BigDecimal amountWithoutTax = BigDecimal.ZERO;
         BigDecimal amountWithTax = BigDecimal.ZERO;
 
