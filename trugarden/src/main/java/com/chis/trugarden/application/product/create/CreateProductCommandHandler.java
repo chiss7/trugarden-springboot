@@ -2,6 +2,7 @@ package com.chis.trugarden.application.product.create;
 
 import com.chis.trugarden.application.category.abstractions.CategoryRepository;
 import com.chis.trugarden.application.product.abstractions.ProductRepository;
+import com.chis.trugarden.application.storage.service.StorageService;
 import com.chis.trugarden.domain.category.Category;
 import com.chis.trugarden.domain.category.CategoryErrors;
 import com.chis.trugarden.domain.product.Product;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -21,38 +23,45 @@ import java.util.Optional;
 public class CreateProductCommandHandler {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final StorageService storageService;
 
     @CommandHandler
     @Transactional
     public Result<Long> handle(CreateProductCommand command) {
-        log.info("Creando producto: {}", command.name());
-        Optional<Category> categoryOpt = categoryRepository.findByCode(command.category());
+        log.info("Creando producto: {}", command.getName());
+        Optional<Category> categoryOpt = categoryRepository.findByCode(command.getCategory());
         if (categoryOpt.isEmpty()) {
-            return Result.failure(CategoryErrors.notFound(command.category()));
+            return Result.failure(CategoryErrors.notFound(command.getCategory()));
         }
 
-        Optional<Product> existingProductOpt = productRepository.findBySlug(command.slug());
+        Optional<Product> existingProductOpt = productRepository.findBySlug(command.getSlug());
         if (existingProductOpt.isPresent()) {
-            return Result.failure(ProductErrors.slugAlreadyExists(command.slug()));
+            return Result.failure(ProductErrors.slugAlreadyExists(command.getSlug()));
         }
 
-        Product savedProduct = saveProduct(command, categoryOpt.get());
+        // uploading images
+        if (command.getImages().isEmpty()) {
+            return Result.failure(ProductErrors.noImagesProvided());
+        }
+        List<String> imageUrls = storageService.uploadProductImages(command.getImages());
+
+        Product savedProduct = saveProduct(command, categoryOpt.get(), imageUrls);
         log.info("Producto {} creado exitosamente.", savedProduct.getId());
         return Result.success(savedProduct.getId());
     }
 
-    private Product saveProduct(CreateProductCommand command, Category category) {
+    private Product saveProduct(CreateProductCommand command, Category category, List<String> imageUrls) {
         Product product = Product.of(
-                command.name(),
-                command.slug(),
-                command.description(),
-                command.originalPrice(),
-                command.unitPrice(),
-                command.imageUrls(),
-                command.hasIva(),
-                command.ivaPercentage(),
+                command.getName(),
+                command.getSlug(),
+                command.getDescription(),
+                command.getOriginalPrice(),
+                command.getUnitPrice(),
+                imageUrls,
+                command.isHasIva(),
+                command.getIvaPercentage(),
                 0,
-                command.stock(),
+                command.getStock(),
                 category
         );
         return productRepository.save(product);

@@ -25,4 +25,11 @@ public class ProductErrors {
                 String.format("No hay suficiente stock para el producto '%s'.", name)
         );
     }
+
+    public static Error noImagesProvided() {
+        return Error.problem(
+                "PRODUCT_NO_IMAGES",
+                "Se debe proporcionar al menos una imagen para el producto."
+        );
+    }
 }

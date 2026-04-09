@@ -27,10 +27,6 @@ public record CreateProductRequest(
         @NotNull(message = "unitPrice is required")
         BigDecimal unitPrice,
 
-        @NotNull(message = "images are required")
-        @NotEmpty(message = "images cannot be empty")
-        List<String> imageUrls,
-
         @NotNull(message = "category is required")
         @NotBlank(message = "category cannot be blank")
         String category,

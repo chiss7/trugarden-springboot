@@ -68,3 +68,12 @@ trugarden:
     sensitive-requests-per-minute: ${SENSITIVE_RATE_LIMIT_REQUESTS_PER_MINUTE:5}
   oauth:
     code-expiration-minutes: 5
+
+storage:
+  active-provider: CLOUDFLARE
+  r2:
+    access-key-id: ${R2_ACCESS_KEY_ID}
+    secret-access-key: ${R2_SECRET_ACCESS_KEY}
+    endpoint: ${R2_ENDPOINT}
+    bucket: ${R2_BUCKET}
+    public-url: ${R2_PUBLIC_URL}  # not recommended in production, change using custom domain

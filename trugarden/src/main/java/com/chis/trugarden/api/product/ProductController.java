@@ -10,11 +10,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/product")
@@ -24,9 +25,15 @@ public class ProductController extends ControllerBase {
     private final CommandGateway commandGateway;
     private final CreateProductMapper createProductMapper;
 
-    @PostMapping
-    public ResponseEntity<GenericResponse<?>> createProduct(@RequestBody @Valid CreateProductRequest request) {
-        Result<Long> result = commandGateway.sendAndWait(createProductMapper.toCommand(request));
+    @PostMapping(
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<GenericResponse<?>> createProduct(
+            @RequestPart("product") @Valid CreateProductRequest request,
+            @RequestPart("images") List<MultipartFile> images
+    ) {
+        Result<Long> result = commandGateway.sendAndWait(createProductMapper.toCommand(request, images));
         return result.isSuccess() ?
                 created(result.getValue().toString(), new CreateProductResponse(result.getValue())) :
                 error(result.getError());
