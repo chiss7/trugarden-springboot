@@ -1,7 +1,10 @@
 package com.chis.trugarden.application.product.abstractions;
 
 import com.chis.trugarden.domain.product.Product;
+import com.chis.trugarden.shared.pagination.SearchFilter;
 import org.jmolecules.ddd.annotation.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,4 +16,5 @@ public interface ProductRepository {
     Optional<Product> findBySlug(String slug);
     Optional<Product> findByIdWithLock(Long id);
     List<Product> saveAll(List<Product> products);
+    Page<Product> findAll(List<SearchFilter> filters, Pageable pageable);
 }

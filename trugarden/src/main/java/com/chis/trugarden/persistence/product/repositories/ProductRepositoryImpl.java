@@ -5,8 +5,12 @@ import com.chis.trugarden.domain.product.Product;
 import com.chis.trugarden.persistence.product.ProductEntityMapper;
 import com.chis.trugarden.persistence.product.ProductJpaRepository;
 import com.chis.trugarden.persistence.product.entities.ProductEntity;
+import com.chis.trugarden.shared.pagination.SearchFilter;
+import com.chis.trugarden.shared.pagination.SearchSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,5 +68,12 @@ public class ProductRepositoryImpl implements ProductRepository {
         return savedEntities.stream()
                 .map(productEntityMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Page<Product> findAll(List<SearchFilter> filters, Pageable pageable) {
+        SearchSpecification<ProductEntity> specification = new SearchSpecification<>(filters);
+        Page<ProductEntity> entityPage = productJpaRepository.findAll(specification, pageable);
+        return entityPage.map(productEntityMapper::toDomain);
     }
 }

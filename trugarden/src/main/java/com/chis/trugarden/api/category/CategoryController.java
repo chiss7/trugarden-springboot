@@ -1,34 +1,30 @@
 package com.chis.trugarden.api.category;
 
-import com.chis.trugarden.api.category.create.CreateCategoryMapper;
-import com.chis.trugarden.api.category.create.CreateCategoryRequest;
-import com.chis.trugarden.api.category.create.CreateCategoryResponse;
+import com.chis.trugarden.api.category.get_all.GetCategoriesMapper;
+import com.chis.trugarden.application.category.get_all.GetCategoriesQuery;
+import com.chis.trugarden.application.category.get_all.GetCategoriesQueryResult;
 import com.chis.trugarden.shared.api.ControllerBase;
 import com.chis.trugarden.shared.api.GenericResponse;
-import com.chis.trugarden.shared.result.Result;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.messaging.responsetypes.ResponseTypes;
+import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/category")
 @RequiredArgsConstructor
 @Tag(name = "Category Controller")
 public class CategoryController extends ControllerBase {
-    private final CommandGateway commandGateway;
-    private final CreateCategoryMapper createCategoryMapper;
+    private final QueryGateway queryGateway;
+    private final GetCategoriesMapper getCategoriesMapper;
 
-    @PostMapping
-    public ResponseEntity<GenericResponse<?>> createCategory(@RequestBody @Valid CreateCategoryRequest request) {
-        Result<Long> result = commandGateway.sendAndWait(createCategoryMapper.toCommand(request));
+    @GetMapping
+    public ResponseEntity<GenericResponse<?>> getAll() {
+        GetCategoriesQueryResult result = queryGateway.query(new GetCategoriesQuery(), ResponseTypes.instanceOf(GetCategoriesQueryResult.class)).join();
         return result.isSuccess() ?
-                created(result.getValue().toString(), new CreateCategoryResponse(result.getValue())) :
+                success(getCategoriesMapper.toResponse(result.getValue())) :
                 error(result.getError());
     }
 }
