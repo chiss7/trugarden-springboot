@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +33,9 @@ public class SessionIdFilter extends OncePerRequestFilter {
 
     @Value("${trugarden.session.secret-key}")
     private String secretKey;
+
+    @Value("${trugarden.session.cookie-max-age-seconds:604800}")
+    private long sessionCookieMaxAgeSeconds;
 
     @Override
     protected void doFilterInternal(
@@ -154,13 +158,14 @@ public class SessionIdFilter extends OncePerRequestFilter {
     }
 
     private void addCookie(HttpServletResponse response, String signedSessionId) {
-        String cookieValue = String.format(
-                "%s=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=Strict",
-                SESSION_COOKIE_NAME,
-                signedSessionId,
-                60 * 60 * 24 * 7  // 7 days
-        );
-        // TODO: In production, add Secure flag: + "; Secure"
-        response.addHeader("Set-Cookie", cookieValue);
+        ResponseCookie cookie = ResponseCookie.from(SESSION_COOKIE_NAME, signedSessionId)
+                .httpOnly(true)
+                .secure(false) // TODO producción: set Secure true
+                .path("/")
+                .maxAge(sessionCookieMaxAgeSeconds)
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 }

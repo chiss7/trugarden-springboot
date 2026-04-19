@@ -1,11 +1,11 @@
 package com.chis.trugarden.shared.security;
 
+import com.chis.trugarden.shared.util.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,19 +48,22 @@ public class JwtFilter extends OncePerRequestFilter {
             return; // Skip further JWT processing
         }
 
-        // Get the Authorization header from the request (contains the JWT)
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String jwt;
-        final String userEmail;
+        String jwt = null;
+        String userEmail;
 
-        // If the Authorization header is missing or doesn't start with "Bearer", skip filtering
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response); // Continue to the next filter
-            return;
+        if (request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if (Constants.AUTH_TOKEN_COOKIE_NAME.equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
         }
 
-        // Extract the JWT from the Authorization header by removing the "Bearer " prefix
-        jwt = authHeader.substring(7);
+        if (jwt == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // Extract the user email (subject) from the JWT
         userEmail = jwtService.extractUsername(jwt);

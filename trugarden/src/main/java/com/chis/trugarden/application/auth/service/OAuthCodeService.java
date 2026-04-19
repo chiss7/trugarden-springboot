@@ -100,7 +100,7 @@ public class OAuthCodeService {
 
     /**
      * Cleans up expired OAuth codes from the database.
-     * Should be called periodically (e.g., via scheduled task).
+     * Should be called periodically (e.g., TODO via scheduled task).
      */
     @Transactional
     public void cleanExpiredCodes() {

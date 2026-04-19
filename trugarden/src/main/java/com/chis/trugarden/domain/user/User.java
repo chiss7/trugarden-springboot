@@ -221,7 +221,7 @@ public class User {
                 this.roles,
                 this.addresses,
                 googleId,
-                this.authProvider
+                AuthProvider.GOOGLE
         );
     }
 

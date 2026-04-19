@@ -38,7 +38,8 @@ application:
       activation-url: http://localhost:4200/activate-account
   security:
     jwt:
-      expiration: 86400000
+      expiration: 900000
+      cookie-max-age-seconds: 900
       secret-key: 291d7b170fc96c6d87eed5d2fdf437eb20d508cc854cd34405818281c754bdab
   frontend:
     oauth-callback-url: ${FRONTEND_OAUTH_CALLBACK:http://localhost:3000/auth/callback}
@@ -63,9 +64,14 @@ trugarden:
     expiration-check-interval-ms: 60000
   session:
     secret-key: ${SESSION_SECRET_KEY:defaultDevSecretKeyAtLeast32Chars!}
+    cookie-max-age-seconds: 604800
   rate-limit:
     requests-per-minute: ${RATE_LIMIT_REQUESTS_PER_MINUTE:60}
     sensitive-requests-per-minute: ${SENSITIVE_RATE_LIMIT_REQUESTS_PER_MINUTE:5}
+  security:
+    refresh:
+      expiration-seconds: 2592000
+      cookie-max-age-seconds: 2592000
   oauth:
     code-expiration-minutes: 5
 

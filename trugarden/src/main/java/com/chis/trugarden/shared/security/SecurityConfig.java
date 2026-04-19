@@ -4,6 +4,7 @@ import com.chis.trugarden.application.auth.service.OAuthCodeService;
 import com.chis.trugarden.infrastructure.security.CustomOAuth2UserService;
 import com.chis.trugarden.infrastructure.security.CustomUserDetails;
 import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +25,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.io.IOException;
 import java.util.List;
 
 @Configuration
@@ -104,9 +106,20 @@ public class SecurityConfig {
                         );
                     }
                 })
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((req, res, e) ->
+                                writeJsonResponse(res, 401, "No autorizado")
+                        )
+                        .accessDeniedHandler((req, res, e) ->
+                                writeJsonResponse(res, 403, "No tienes los permisos necesarios")
+                        )
+                )
                 .authorizeHttpRequests(req -> req
+                        .requestMatchers("/auth/me").authenticated()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/cart/**").permitAll()
+                        .requestMatchers("/product/**").permitAll()
+                        .requestMatchers("/category/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -154,5 +167,11 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    private void writeJsonResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"error\": \"" + message + "\"}");
     }
 }
