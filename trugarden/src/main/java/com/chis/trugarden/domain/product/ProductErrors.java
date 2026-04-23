@@ -12,6 +12,13 @@ public class ProductErrors {
         );
     }
 
+    public static Error notFound(String slug) {
+        return Error.notFound(
+                "PRODUCT_NOT_FOUND",
+                String.format("No se encontró el producto '%s'.", slug)
+        );
+    }
+
     public static Error slugAlreadyExists(String slug) {
         return Error.conflict(
                 "PRODUCT_SLUG_ALREADY_EXISTS",

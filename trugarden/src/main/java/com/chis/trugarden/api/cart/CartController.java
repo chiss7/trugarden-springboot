@@ -5,6 +5,7 @@ import com.chis.trugarden.api.cart.update_cart_item.UpdateCartItemRequest;
 import com.chis.trugarden.api.cart.get.GetUserCartMapper;
 import com.chis.trugarden.application.cart.get.GetUserCartQuery;
 import com.chis.trugarden.application.cart.get.GetUserCartQueryResult;
+import com.chis.trugarden.application.cart.update_cart_item.UpdateCartItemResult;
 import com.chis.trugarden.shared.api.ControllerBase;
 import com.chis.trugarden.shared.api.GenericResponse;
 import com.chis.trugarden.shared.result.Result;
@@ -44,9 +45,9 @@ public class CartController extends ControllerBase {
             @RequestBody @Validated UpdateCartItemRequest request
     ) {
         request.setSessionId(sessionId);
-        Result<Long> result = commandGateway.sendAndWait(updateCartItemMapper.toCommand(request));
+        Result<UpdateCartItemResult> result = commandGateway.sendAndWait(updateCartItemMapper.toCommand(request));
         return result.isSuccess() ?
-                success(result.getValue()) :
+                success(updateCartItemMapper.toResponse(result.getValue())) :
                 error(result.getError());
     }
 }

@@ -6,6 +6,7 @@ import com.chis.trugarden.domain.cart.Cart;
 import com.chis.trugarden.domain.cart.CartErrors;
 import com.chis.trugarden.domain.product.Product;
 import com.chis.trugarden.domain.product.ProductErrors;
+import com.chis.trugarden.infrastructure.security.AuthenticationHelper;
 import com.chis.trugarden.shared.enums.CartStatus;
 import com.chis.trugarden.shared.result.Result;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,8 @@ public class UpdateCartItemCommandHandler {
     private final ProductRepository productRepository;
 
     @CommandHandler
-    public Result<Long> handle(UpdateCartItemCommand command) {
+    public Result<UpdateCartItemResult> handle(UpdateCartItemCommand command) {
+        boolean isAuthenticated = AuthenticationHelper.isAuthenticated();
         Result<Cart> userCartResult = cartService.getUserCart(command.sessionId(), CartStatus.ACTIVE);
         if (userCartResult.isFailure()) {
             return Result.failure(userCartResult.getError());
@@ -39,7 +41,7 @@ public class UpdateCartItemCommandHandler {
         if (userCart.isNotCreated()) {
             Result<Cart> newCart = cartService.createCart(command.sessionId(), product, command.quantity());
             return newCart.isSuccess() ?
-                    Result.success(newCart.getValue().getId()) :
+                    Result.success(UpdateCartItemResult.from(newCart.getValue(), isAuthenticated)) :
                     Result.failure(newCart.getError());
         }
 
@@ -51,7 +53,7 @@ public class UpdateCartItemCommandHandler {
 
         Result<Cart> updatedCart = cartService.updateCartItem(userCart, product, command.quantity(), isIncreasingItemQuantity);
         return updatedCart.isSuccess() ?
-                Result.success(updatedCart.getValue().getId()) :
+                Result.success(UpdateCartItemResult.from(updatedCart.getValue(), isAuthenticated)) :
                 Result.failure(updatedCart.getError());
     }
 }
