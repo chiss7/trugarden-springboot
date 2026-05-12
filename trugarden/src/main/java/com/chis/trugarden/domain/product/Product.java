@@ -1,6 +1,7 @@
 package com.chis.trugarden.domain.product;
 
 import com.chis.trugarden.domain.category.Category;
+import com.chis.trugarden.shared.enums.ProductType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,6 +22,9 @@ public class Product {
     private final int ivaPercentage;
     private final int numRatings;
     private final double stock;
+    private final int leadTimeMinDays;
+    private final int leadTimeMaxDays;
+    private final ProductType productType;
     private final Category category;
     // private final List<Review> reviews;
 
@@ -36,6 +40,9 @@ public class Product {
             int ivaPercentage,
             int numRatings,
             double stock,
+            int leadTimeMinDays,
+            int leadTimeMaxDays,
+            ProductType productType,
             Category category
     ) {
         this.id = id;
@@ -50,6 +57,9 @@ public class Product {
         this.ivaPercentage = ivaPercentage;
         this.numRatings = numRatings;
         this.stock = stock;
+        this.leadTimeMinDays = leadTimeMinDays;
+        this.leadTimeMaxDays = leadTimeMaxDays;
+        this.productType = productType != null ? productType : ProductType.STOCK;
         this.category = Objects.requireNonNull(category, "La categoría del producto no puede ser nulo");
     }
 
@@ -65,6 +75,9 @@ public class Product {
             int ivaPercentage,
             int numRatings,
             double stock,
+            int leadTimeMinDays,
+            int leadTimeMaxDays,
+            ProductType productType,
             Category category
     ) {
         return new Product(
@@ -79,6 +92,9 @@ public class Product {
                 ivaPercentage,
                 numRatings,
                 stock,
+                leadTimeMinDays,
+                leadTimeMaxDays,
+                productType,
                 category
         );
     }
@@ -94,6 +110,9 @@ public class Product {
             int ivaPercentage,
             int numRatings,
             double stock,
+            int leadTimeMinDays,
+            int leadTimeMaxDays,
+            ProductType productType,
             Category category
     ) {
         return new Product(
@@ -108,6 +127,9 @@ public class Product {
                 ivaPercentage,
                 numRatings,
                 stock,
+                leadTimeMinDays,
+                leadTimeMaxDays,
+                productType,
                 category
         );
     }
@@ -158,6 +180,18 @@ public class Product {
 
     public double getStock() {
         return stock;
+    }
+
+    public int getLeadTimeMinDays() {
+        return leadTimeMinDays;
+    }
+
+    public int getLeadTimeMaxDays() {
+        return leadTimeMaxDays;
+    }
+
+    public ProductType getProductType() {
+        return productType;
     }
 
     public Category getCategory() {
@@ -228,6 +262,9 @@ public class Product {
                 this.ivaPercentage,
                 this.numRatings,
                 newStock,
+                this.leadTimeMinDays,
+                this.leadTimeMaxDays,
+                this.productType,
                 this.category
         );
     }
@@ -247,6 +284,9 @@ public class Product {
                 ", ivaPercentage=" + ivaPercentage +
                 ", numRatings=" + numRatings +
                 ", stock=" + stock +
+                ", leadTimeMinDays=" + leadTimeMinDays +
+                ", leadTimeMaxDays=" + leadTimeMaxDays +
+                ", productType=" + productType +
                 ", categoryName='" + category.getName() + '\'' +
                 '}';
     }

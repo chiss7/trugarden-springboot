@@ -3,6 +3,8 @@ package com.chis.trugarden.api.product.create;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import com.chis.trugarden.shared.enums.ProductType;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -34,6 +36,16 @@ public record CreateProductRequest(
         @NotNull(message = "stock is required")
         Integer stock,
 
+        @NotNull(message = "leadTimeMinDays is required")
+        @Min(value = 0, message = "leadTimeMinDays must be >= 0")
+        Integer leadTimeMinDays,
+
+        @NotNull(message = "leadTimeMaxDays is required")
+        @Min(value = 0, message = "leadTimeMaxDays must be >= 0")
+        Integer leadTimeMaxDays,
+
+        ProductType productType,
+
         @NotNull(message = "hasIva is required")
         Boolean hasIva,
         Integer ivaPercentage
@@ -44,5 +56,13 @@ public record CreateProductRequest(
                         return ivaPercentage != null && ivaPercentage > 0;
                 }
                 return true;
+        }
+
+        @AssertTrue(message = "leadTimeMinDays must be <= leadTimeMaxDays")
+        public boolean isLeadTimeValid() {
+                if (leadTimeMinDays == null || leadTimeMaxDays == null) {
+                        return true;
+                }
+                return leadTimeMinDays <= leadTimeMaxDays;
         }
 }

@@ -14,6 +14,8 @@ public record UpdateCartItemResponse(
         BigDecimal grandTotal,
         int quantity,
         String couponCode,
+        int etaMinDays,
+        int etaMaxDays,
         List<CartItemResponse> cartItems,
         boolean isAuthenticated
 ) {
@@ -32,7 +34,10 @@ public record UpdateCartItemResponse(
             int taxPercentage,
             BigDecimal taxAmount,
             double discountPercentage,
-            double stock
+            double stock,
+            int leadTimeMinDays,
+            int leadTimeMaxDays,
+            String productType
     ) {
     }
 }

@@ -7,3 +7,7 @@ springdoc:
 server:
   servlet:
     context-path: /api/v1
+
+trugarden:
+  stock:
+    max-made-to-order-quantity-per-order: 10

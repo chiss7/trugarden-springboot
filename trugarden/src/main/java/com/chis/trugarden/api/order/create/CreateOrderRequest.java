@@ -7,9 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateOrderRequest {
-    private String sessionId;
-
     private Long shippingAddressId;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phoneNumber;
     private String principalStreet;
     private String secondaryStreet;
     private String houseNumber;
@@ -27,7 +29,10 @@ public class CreateOrderRequest {
         return notBlank(principalStreet) &&
                 notBlank(secondaryStreet) &&
                 notBlank(houseNumber) &&
-                notBlank(zipCode) &&
+                notBlank(firstName) &&
+                notBlank(lastName) &&
+                notBlank(email) &&
+                notBlank(phoneNumber) &&
                 notBlank(sector) &&
                 notBlank(city);
     }

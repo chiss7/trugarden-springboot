@@ -20,7 +20,7 @@ import java.util.Set;
 @EntityListeners(AuditingEntityListener.class)
 public class WishListEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne

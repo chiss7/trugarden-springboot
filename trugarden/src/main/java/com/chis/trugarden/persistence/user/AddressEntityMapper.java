@@ -15,6 +15,10 @@ public interface AddressEntityMapper {
         entity.setId(address.getId());
         entity.setPrincipalStreet(address.getPrincipalStreet());
         entity.setSecondaryStreet(address.getSecondaryStreet());
+        entity.setFirstName(address.getFirstName());
+        entity.setLastName(address.getLastName());
+        entity.setEmail(address.getEmail());
+        entity.setPhoneNumber(address.getPhoneNumber());
         entity.setHouseNumber(address.getHouseNumber());
         entity.setCity(address.getCity());
         entity.setSector(address.getSector());
@@ -32,6 +36,10 @@ public interface AddressEntityMapper {
                 entity.getId(),
                 entity.getPrincipalStreet(),
                 entity.getSecondaryStreet(),
+                entity.getFirstName(),
+                entity.getLastName(),
+                entity.getEmail(),
+                entity.getPhoneNumber(),
                 entity.getHouseNumber(),
                 entity.getZipCode(),
                 entity.getSector(),

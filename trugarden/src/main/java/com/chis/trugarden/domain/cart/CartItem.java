@@ -20,6 +20,8 @@ public class CartItem {
     private final int taxPercentage;
     private final BigDecimal taxAmount;
     private final Long userId;
+    private final int leadTimeMinDays;
+    private final int leadTimeMaxDays;
 
     public CartItem(
             Long id,
@@ -29,7 +31,9 @@ public class CartItem {
             BigDecimal originalPrice,
             BigDecimal unitPrice,
             int taxPercentage,
-            Long userId
+            Long userId,
+            int leadTimeMinDays,
+            int leadTimeMaxDays
     ) {
         this.id = id;
         this.cartId = cartId;
@@ -41,6 +45,8 @@ public class CartItem {
         this.subtotal = calculateSubtotal();
         this.taxAmount = calculateTaxAmount();
         this.userId = userId;
+        this.leadTimeMinDays = leadTimeMinDays;
+        this.leadTimeMaxDays = leadTimeMaxDays;
     }
 
     public static CartItem of(
@@ -51,9 +57,12 @@ public class CartItem {
             BigDecimal originalPrice,
             BigDecimal unitPrice,
             int taxPercentage,
-            Long userId
+            Long userId,
+            int leadTimeMinDays,
+            int leadTimeMaxDays
     ) {
-        return new CartItem(id, cartId, product, quantity, originalPrice, unitPrice, taxPercentage, userId);
+        return new CartItem(id, cartId, product, quantity, originalPrice, unitPrice, taxPercentage, userId,
+                leadTimeMinDays, leadTimeMaxDays);
     }
 
     public static CartItem ofNew(
@@ -63,9 +72,12 @@ public class CartItem {
             BigDecimal originalPrice,
             BigDecimal unitPrice,
             int taxPercentage,
-            Long userId
+            Long userId,
+            int leadTimeMinDays,
+            int leadTimeMaxDays
     ) {
-        return new CartItem(null, cartId, product, quantity, originalPrice, unitPrice, taxPercentage, userId);
+        return new CartItem(null, cartId, product, quantity, originalPrice, unitPrice, taxPercentage, userId,
+                leadTimeMinDays, leadTimeMaxDays);
     }
 
     /**
@@ -83,10 +95,12 @@ public class CartItem {
                 cartId,
                 product,
                 quantity,
-                product.getOriginalPrice(),
-                product.getUnitPrice(),
-                product.isHasIva() ? product.getIvaPercentage() : 0,
-                userId
+            product.getOriginalPrice(),
+            product.getUnitPrice(),
+            product.isHasIva() ? product.getIvaPercentage() : 0,
+            userId,
+            product.getLeadTimeMinDays(),
+            product.getLeadTimeMaxDays()
         );
     }
 
@@ -112,10 +126,12 @@ public class CartItem {
                 cartId,
                 orderItem.getProduct(),
                 orderItem.getQuantity(),
-                orderItem.getOriginalPrice(),
-                orderItem.getUnitPrice(),
-                orderItem.getTaxPercentage(),
-                orderItem.getUserId()
+            orderItem.getOriginalPrice(),
+            orderItem.getUnitPrice(),
+            orderItem.getTaxPercentage(),
+            orderItem.getUserId(),
+            orderItem.getPromisedLeadTimeMinDays(),
+            orderItem.getPromisedLeadTimeMaxDays()
         );
     }
 
@@ -159,6 +175,14 @@ public class CartItem {
         return userId;
     }
 
+    public int getLeadTimeMinDays() {
+        return leadTimeMinDays;
+    }
+
+    public int getLeadTimeMaxDays() {
+        return leadTimeMaxDays;
+    }
+
     /**
      * Calculates subtotal: unitPrice × quantity
      */
@@ -190,7 +214,8 @@ public class CartItem {
      * Creates a new CartItem with updated quantity.
      */
     public CartItem withQuantity(int newQuantity) {
-        return new CartItem(id, cartId, product, newQuantity, originalPrice, unitPrice, taxPercentage, userId);
+        return new CartItem(id, cartId, product, newQuantity, originalPrice, unitPrice, taxPercentage, userId,
+                leadTimeMinDays, leadTimeMaxDays);
     }
 
     @Override
@@ -206,6 +231,8 @@ public class CartItem {
                 ", taxPercentage=" + taxPercentage +
                 ", taxAmount=" + taxAmount +
                 ", userId=" + userId +
+                ", leadTimeMinDays=" + leadTimeMinDays +
+                ", leadTimeMaxDays=" + leadTimeMaxDays +
                 '}';
     }
 }

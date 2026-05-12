@@ -7,6 +7,7 @@ import com.chis.trugarden.domain.category.Category;
 import com.chis.trugarden.domain.category.CategoryErrors;
 import com.chis.trugarden.domain.product.Product;
 import com.chis.trugarden.domain.product.ProductErrors;
+import com.chis.trugarden.shared.enums.ProductType;
 import com.chis.trugarden.shared.result.Result;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +63,9 @@ public class CreateProductCommandHandler {
                 command.getIvaPercentage(),
                 0,
                 command.getStock(),
+                command.getLeadTimeMinDays(),
+                command.getLeadTimeMaxDays(),
+                command.getProductType() != null ? command.getProductType() : ProductType.STOCK,
                 category
         );
         return productRepository.save(product);

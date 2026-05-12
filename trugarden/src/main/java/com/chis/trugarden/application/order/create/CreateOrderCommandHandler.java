@@ -10,6 +10,8 @@ import com.chis.trugarden.domain.user.Address;
 import com.chis.trugarden.domain.user.UserErrors;
 import com.chis.trugarden.infrastructure.security.AuthenticationHelper;
 import com.chis.trugarden.shared.enums.CartStatus;
+import com.chis.trugarden.shared.enums.ProductType;
+import com.chis.trugarden.shared.properties.StockProperties;
 import com.chis.trugarden.shared.result.Result;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ public class CreateOrderCommandHandler {
     private final CartService cartService;
     private final OrderService orderService;
     private final StockReservationService stockReservationService;
+    private final StockProperties stockProperties;
 
     @CommandHandler
     public Result<CreateOrderResult> handle(CreateOrderCommand command) {
@@ -53,6 +56,14 @@ public class CreateOrderCommandHandler {
             return Result.failure(CartErrors.emptyCart());
         }
 
+        int maxAllowed = stockProperties.getMaxMadeToOrderQuantityPerOrder();
+        if (cart.getCartItems().stream()
+                .filter(item -> item.getProduct().getProductType() == ProductType.MADE_TO_ORDER)
+                .mapToInt(CartItem::getQuantity)
+                .sum() > maxAllowed) {
+            return Result.failure(CartErrors.madeToOrderLimitExceeded(maxAllowed));
+        }
+
         if (!cart.isValid()) {
             log.error("User has invalid cart");
             return Result.failure(CartErrors.invalidCart());
@@ -69,6 +80,10 @@ public class CreateOrderCommandHandler {
                 command.shippingAddressId(),
                 command.principalStreet(),
                 command.secondaryStreet(),
+                command.firstName(),
+                command.lastName(),
+                command.email(),
+                command.phoneNumber(),
                 command.houseNumber(),
                 command.zipCode(),
                 command.sector(),

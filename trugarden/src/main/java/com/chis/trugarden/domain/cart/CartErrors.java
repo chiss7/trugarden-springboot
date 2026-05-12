@@ -83,6 +83,14 @@ public class CartErrors {
         );
     }
 
+    public static Error madeToOrderLimitExceeded(int maxAllowed) {
+        return Error.conflict(
+                "MADE_TO_ORDER_LIMIT_EXCEEDED",
+                "La cantidad solicitada supera el máximo permitido para productos bajo pedido (máximo " +
+                        maxAllowed + ")."
+        );
+    }
+
     public static Error sessionMismatch() {
         return Error.conflict(
                 "SESSION_MISMATCH",

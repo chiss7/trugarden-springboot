@@ -22,4 +22,10 @@ public class StockProperties {
      * Por defecto: 60000ms (1 minuto).
      */
     private long expirationCheckIntervalMs = 60000;
+
+    /**
+     * Máximo permitido por pedido para productos hechos bajo pedido.
+     * Por defecto: 10.
+     */
+    private int maxMadeToOrderQuantityPerOrder = 10;
 }

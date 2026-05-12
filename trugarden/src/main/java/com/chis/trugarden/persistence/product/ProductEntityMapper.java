@@ -3,6 +3,7 @@ package com.chis.trugarden.persistence.product;
 import com.chis.trugarden.domain.product.Product;
 import com.chis.trugarden.persistence.category.CategoryEntityMapper;
 import com.chis.trugarden.persistence.product.entities.ProductEntity;
+import com.chis.trugarden.shared.enums.ProductType;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -26,6 +27,9 @@ public interface ProductEntityMapper {
         entity.setIvaPercentage(product.getIvaPercentage());
         entity.setNumRatings(product.getNumRatings());
         entity.setStock(product.getStock());
+        entity.setLeadTimeMinDays(product.getLeadTimeMinDays());
+        entity.setLeadTimeMaxDays(product.getLeadTimeMaxDays());
+        entity.setProductType(product.getProductType());
         entity.setCategory(categoryEntityMapper.toEntity(product.getCategory()));
         entity.setDiscountPercentage(product.getDiscountPercentage());
         return entity;
@@ -48,6 +52,9 @@ public interface ProductEntityMapper {
                 entity.getIvaPercentage(),
                 entity.getNumRatings(),
                 entity.getStock(),
+                entity.getLeadTimeMinDays(),
+                entity.getLeadTimeMaxDays(),
+                entity.getProductType() != null ? entity.getProductType() : ProductType.STOCK,
                 categoryEntityMapper.toDomain(entity.getCategory())
         );
     }

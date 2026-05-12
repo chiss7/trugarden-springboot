@@ -22,7 +22,7 @@ import java.util.List;
 @Table(name = "role")
 public class RoleEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)

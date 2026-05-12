@@ -4,6 +4,10 @@ public class Address {
     private final Long id;
     private final String principalStreet;
     private final String secondaryStreet;
+    private final String firstName;
+    private final String lastName;
+    private final String email;
+    private final String phoneNumber;
     private final String houseNumber;
     private final String zipCode;
     private final String sector;
@@ -15,6 +19,10 @@ public class Address {
             Long id,
             String principalStreet,
             String secondaryStreet,
+            String firstName,
+            String lastName,
+            String email,
+            String phoneNumber,
             String houseNumber,
             String zipCode,
             String sector,
@@ -25,6 +33,10 @@ public class Address {
         this.id = id;
         this.principalStreet = principalStreet;
         this.secondaryStreet = secondaryStreet;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
         this.houseNumber = houseNumber;
         this.zipCode = zipCode;
         this.sector = sector;
@@ -37,6 +49,10 @@ public class Address {
             Long id,
             String principalStreet,
             String secondaryStreet,
+            String firstName,
+            String lastName,
+            String email,
+            String phoneNumber,
             String houseNumber,
             String zipCode,
             String sector,
@@ -44,12 +60,16 @@ public class Address {
             Long userId,
             String sessionId
     ) {
-        return new Address(id, principalStreet, secondaryStreet, houseNumber, zipCode, sector, city, userId, sessionId);
+        return new Address(id, principalStreet, secondaryStreet, firstName, lastName, email, phoneNumber, houseNumber, zipCode, sector, city, userId, sessionId);
     }
 
     public static Address ofNew(
             String principalStreet,
             String secondaryStreet,
+            String firstName,
+            String lastName,
+            String email,
+            String phoneNumber,
             String houseNumber,
             String zipCode,
             String sector,
@@ -57,7 +77,7 @@ public class Address {
             Long userId,
             String sessionId
     ) {
-        return new Address(null, principalStreet, secondaryStreet, houseNumber, zipCode, sector, city, userId, sessionId);
+        return new Address(null, principalStreet, secondaryStreet, firstName, lastName, email, phoneNumber, houseNumber, zipCode, sector, city, userId, sessionId);
     }
 
     public Long getId() {
@@ -96,12 +116,32 @@ public class Address {
         return sessionId;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
     @Override
     public String toString() {
         return "Address{" +
                 "id=" + id +
                 ", principalStreet='" + principalStreet + '\'' +
                 ", secondaryStreet='" + secondaryStreet + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
                 ", houseNumber='" + houseNumber + '\'' +
                 ", zipCode='" + zipCode + '\'' +
                 ", sector='" + sector + '\'' +

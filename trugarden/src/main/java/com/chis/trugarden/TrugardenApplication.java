@@ -1,12 +1,7 @@
 package com.chis.trugarden;
 
-import com.chis.trugarden.persistence.role.entities.RoleEntity;
-import com.chis.trugarden.persistence.role.RoleJpaRepository;
-import com.chis.trugarden.shared.enums.Roles;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 
@@ -17,15 +12,6 @@ public class TrugardenApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(TrugardenApplication.class, args);
-	}
-
-	@Bean
-	public CommandLineRunner runner(RoleJpaRepository roleJpaRepository) {
-		return args -> {
-			if(roleJpaRepository.findByName(Roles.ROLE_CUSTOMER).isEmpty()) {
-				roleJpaRepository.save(RoleEntity.builder().name(Roles.ROLE_CUSTOMER).build());
-			}
-		};
 	}
 
 }

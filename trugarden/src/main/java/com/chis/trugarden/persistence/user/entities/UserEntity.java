@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @EntityListeners(AuditingEntityListener.class)
 public class UserEntity  {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String firstname;
     private String lastname;
@@ -51,6 +51,11 @@ public class UserEntity  {
     private List<AddressEntity> addresses;
 
     @ManyToMany(fetch = FetchType.EAGER) // when the entity is loaded, the roles list will also be loaded immediately
+    @JoinTable(
+            name = "_user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "roles_id")
+    )
     private List<RoleEntity> roles;
 
     @OneToMany(mappedBy = "user")

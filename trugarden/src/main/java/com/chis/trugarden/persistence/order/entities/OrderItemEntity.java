@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class OrderItemEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JsonIgnore
@@ -40,6 +40,10 @@ public class OrderItemEntity {
     private BigDecimal taxAmount;
 
     private Long userId;
+
+    private int promisedLeadTimeMinDays;
+
+    private int promisedLeadTimeMaxDays;
 
     @CreatedDate
     @Column(updatable = false, nullable = false)

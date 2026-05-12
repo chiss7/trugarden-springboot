@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Table(name = "cart_item")
 public class CartItemEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -45,6 +45,10 @@ public class CartItemEntity {
     private BigDecimal taxAmount;
 
     private Long userId;
+
+    private int leadTimeMinDays;
+
+    private int leadTimeMaxDays;
 
     @CreatedDate
     @Column(updatable = false, nullable = false)

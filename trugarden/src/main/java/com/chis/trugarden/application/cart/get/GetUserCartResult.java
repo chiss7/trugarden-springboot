@@ -20,13 +20,38 @@ public record GetUserCartResult(
         int quantity,
         String couponCode,
         CartStatus status,
+        int etaMinDays,
+        int etaMaxDays,
         List<CartItemResult> cartItems,
         boolean isAuthenticated
 ) {
     public static GetUserCartResult from(Cart cart, boolean isAuthenticated) {
+        if (cart == null) {
+            return new GetUserCartResult(
+                    null,
+                    null,
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO,
+                    BigDecimal.ZERO,
+                    0,
+                    null,
+                    CartStatus.NOT_CREATED,
+                    0,
+                    0,
+                    List.of(),
+                    isAuthenticated
+            );
+        }
+
         List<CartItemResult> items = cart.getCartItems().stream()
                 .map(CartItemResult::from)
                 .toList();
+
+        int etaMinDays = calculateEtaMinDays(items);
+        int etaMaxDays = calculateEtaMaxDays(items);
 
         return new GetUserCartResult(
                 cart.getId(),
@@ -40,6 +65,8 @@ public record GetUserCartResult(
                 cart.getQuantity(),
                 cart.getCouponCode(),
                 cart.getStatus(),
+                etaMinDays,
+                etaMaxDays,
                 items,
                 isAuthenticated
         );
@@ -60,7 +87,10 @@ public record GetUserCartResult(
             int taxPercentage,
             BigDecimal taxAmount,
             double discountPercentage,
-            double stock
+            double stock,
+            int leadTimeMinDays,
+            int leadTimeMaxDays,
+            String productType
     ) {
         public static CartItemResult from(CartItem item) {
             Product product = item.getProduct();
@@ -81,8 +111,25 @@ public record GetUserCartResult(
                     item.getTaxPercentage(),
                     item.getTaxAmount() != null ? item.getTaxAmount() : BigDecimal.ZERO,
                     product.getDiscountPercentage(),
-                    product.getStock()
+                    product.getStock(),
+                    item.getLeadTimeMinDays(),
+                    item.getLeadTimeMaxDays(),
+                    product.getProductType().name()
             );
         }
+    }
+
+    private static int calculateEtaMinDays(List<CartItemResult> items) {
+        return items.stream()
+                .mapToInt(CartItemResult::leadTimeMinDays)
+                .max()
+                .orElse(0);
+    }
+
+    private static int calculateEtaMaxDays(List<CartItemResult> items) {
+        return items.stream()
+                .mapToInt(CartItemResult::leadTimeMaxDays)
+                .max()
+                .orElse(0);
     }
 }

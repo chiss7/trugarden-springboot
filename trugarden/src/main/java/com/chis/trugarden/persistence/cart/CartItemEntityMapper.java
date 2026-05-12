@@ -24,6 +24,8 @@ public interface CartItemEntityMapper {
         cartItemEntity.setTaxPercentage(cartItem.getTaxPercentage());
         cartItemEntity.setTaxAmount(cartItem.getTaxAmount());
         cartItemEntity.setUserId(cartItem.getUserId());
+        cartItemEntity.setLeadTimeMinDays(cartItem.getLeadTimeMinDays());
+        cartItemEntity.setLeadTimeMaxDays(cartItem.getLeadTimeMaxDays());
         return cartItemEntity;
     }
 
@@ -40,7 +42,9 @@ public interface CartItemEntityMapper {
                 cartItemEntity.getOriginalPrice(),
                 cartItemEntity.getUnitPrice(),
                 cartItemEntity.getTaxPercentage(),
-                cartItemEntity.getUserId()
+                cartItemEntity.getUserId(),
+                cartItemEntity.getLeadTimeMinDays(),
+                cartItemEntity.getLeadTimeMaxDays()
         );
     }
 }

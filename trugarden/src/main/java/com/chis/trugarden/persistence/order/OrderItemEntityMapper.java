@@ -25,6 +25,8 @@ public interface OrderItemEntityMapper {
         entity.setTaxPercentage(orderItem.getTaxPercentage());
         entity.setTaxAmount(orderItem.getTaxAmount());
         entity.setUserId(orderItem.getUserId());
+        entity.setPromisedLeadTimeMinDays(orderItem.getPromisedLeadTimeMinDays());
+        entity.setPromisedLeadTimeMaxDays(orderItem.getPromisedLeadTimeMaxDays());
 
         return entity;
     }
@@ -44,7 +46,9 @@ public interface OrderItemEntityMapper {
                 entity.getSubtotal(),
                 entity.getTaxPercentage(),
                 entity.getTaxAmount(),
-                entity.getUserId()
+                entity.getUserId(),
+                entity.getPromisedLeadTimeMinDays(),
+                entity.getPromisedLeadTimeMaxDays()
         );
     }
 }

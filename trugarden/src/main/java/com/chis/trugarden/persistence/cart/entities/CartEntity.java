@@ -22,7 +22,7 @@ import java.util.Set;
 @Table(name = "cart")
 public class CartEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne

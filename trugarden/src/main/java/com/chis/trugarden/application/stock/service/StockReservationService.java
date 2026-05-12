@@ -7,6 +7,7 @@ import com.chis.trugarden.domain.product.Product;
 import com.chis.trugarden.domain.product.ProductErrors;
 import com.chis.trugarden.domain.stock.StockReservation;
 import com.chis.trugarden.domain.stock.StockReservationErrors;
+import com.chis.trugarden.shared.enums.ProductType;
 import com.chis.trugarden.shared.enums.ReservationStatus;
 import com.chis.trugarden.shared.properties.StockProperties;
 import com.chis.trugarden.shared.result.Result;
@@ -41,8 +42,13 @@ public class StockReservationService {
 
         // Ordenar por productId para evitar deadlocks
         List<CartItem> sortedItems = items.stream()
+                .filter(item -> item.getProduct().getProductType() != ProductType.MADE_TO_ORDER)
                 .sorted(Comparator.comparing(item -> item.getProduct().getId()))
                 .toList();
+
+        if (sortedItems.isEmpty()) {
+            return Result.success(List.of());
+        }
 
         LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(stockProperties.getReservationTtlMinutes());
         List<StockReservation> reservations = new ArrayList<>();
@@ -113,7 +119,7 @@ public class StockReservationService {
 
         if (activeReservations.isEmpty()) {
             log.warn("No active reservations found for order: {}", orderId);
-            return Result.failure(StockReservationErrors.reservationNotFound(orderId));
+            return Result.success(null);
         }
 
         // Ordenar por productId para evitar deadlocks
@@ -134,6 +140,13 @@ public class StockReservationService {
 
             Product product = productOpt.get();
 
+            if (product.getProductType() == ProductType.MADE_TO_ORDER) {
+                // No decrementa stock para productos bajo pedido.
+                StockReservation confirmedReservation = reservation.withStatus(ReservationStatus.CONFIRMED);
+                reservationsToUpdate.add(confirmedReservation);
+                continue;
+            }
+
             // AQUÍ SÍ DECREMENTAMOS EL STOCK REAL
             Product updatedProduct = product.withStock(product.getStock() - reservation.getQuantity());
             productsToUpdate.add(updatedProduct);
@@ -147,7 +160,9 @@ public class StockReservationService {
         }
 
         // Guardar productos actualizados
-        productRepository.saveAll(productsToUpdate);
+        if (!productsToUpdate.isEmpty()) {
+            productRepository.saveAll(productsToUpdate);
+        }
 
         // Guardar reservas confirmadas
         reservationRepository.saveAll(reservationsToUpdate);
@@ -223,6 +238,9 @@ public class StockReservationService {
         }
 
         Product product = productOpt.get();
+        if (product.getProductType() == ProductType.MADE_TO_ORDER) {
+            return Integer.MAX_VALUE;
+        }
         int reservedQuantity = reservationRepository.sumActiveReservationsByProductId(productId);
         
         return Math.max(0, (int) product.getStock() - reservedQuantity);
@@ -233,15 +251,16 @@ public class StockReservationService {
      */
     public Set<CartItem> getItemsWithInsufficientStock(Set<CartItem> items) {
         return items.stream()
+                .filter(item -> item.getProduct().getProductType() != ProductType.MADE_TO_ORDER)
                 .filter(item -> {
                     int availableStock = getAvailableStock(item.getProduct().getId());
                     boolean insufficient = item.getQuantity() > availableStock;
-                    
+
                     if (insufficient) {
-                        log.debug("Item {} has insufficient stock: requested={}, available={}", 
+                        log.debug("Item {} has insufficient stock: requested={}, available={}",
                                 item.getProduct().getName(), item.getQuantity(), availableStock);
                     }
-                    
+
                     return insufficient;
                 })
                 .collect(Collectors.toSet());

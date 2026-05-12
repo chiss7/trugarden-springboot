@@ -19,6 +19,8 @@ public class OrderItem {
     private final int taxPercentage;
     private final BigDecimal taxAmount;
     private final Long userId;
+    private final int promisedLeadTimeMinDays;
+    private final int promisedLeadTimeMaxDays;
 
     public OrderItem(
             Long id,
@@ -30,7 +32,9 @@ public class OrderItem {
             BigDecimal subtotal,
             int taxPercentage,
             BigDecimal taxAmount,
-            Long userId
+            Long userId,
+            int promisedLeadTimeMinDays,
+            int promisedLeadTimeMaxDays
     ) {
         this.id = id;
         this.orderId = orderId;
@@ -42,6 +46,8 @@ public class OrderItem {
         this.taxPercentage = taxPercentage;
         this.taxAmount = taxAmount;
         this.userId = userId;
+        this.promisedLeadTimeMinDays = promisedLeadTimeMinDays;
+        this.promisedLeadTimeMaxDays = promisedLeadTimeMaxDays;
     }
 
     public static OrderItem of(
@@ -54,10 +60,13 @@ public class OrderItem {
             BigDecimal subtotal,
             int taxPercentage,
             BigDecimal taxAmount,
-            Long userId
+            Long userId,
+            int promisedLeadTimeMinDays,
+            int promisedLeadTimeMaxDays
     ) {
         return new OrderItem(
-                id, orderId, product, quantity, originalPrice, unitPrice, subtotal, taxPercentage, taxAmount, userId
+                id, orderId, product, quantity, originalPrice, unitPrice, subtotal, taxPercentage, taxAmount, userId,
+                promisedLeadTimeMinDays, promisedLeadTimeMaxDays
         );
     }
 
@@ -70,10 +79,13 @@ public class OrderItem {
             BigDecimal subtotal,
             int taxPercentage,
             BigDecimal taxAmount,
-            Long userId
+            Long userId,
+            int promisedLeadTimeMinDays,
+            int promisedLeadTimeMaxDays
     ) {
         return new OrderItem(
-                null, orderId, product, quantity, originalPrice, unitPrice, subtotal, taxPercentage, taxAmount, userId
+                null, orderId, product, quantity, originalPrice, unitPrice, subtotal, taxPercentage, taxAmount, userId,
+                promisedLeadTimeMinDays, promisedLeadTimeMaxDays
         );
     }
 
@@ -117,6 +129,14 @@ public class OrderItem {
         return userId;
     }
 
+    public int getPromisedLeadTimeMinDays() {
+        return promisedLeadTimeMinDays;
+    }
+
+    public int getPromisedLeadTimeMaxDays() {
+        return promisedLeadTimeMaxDays;
+    }
+
     public static OrderItem fromCartItem(CartItem cartItem, Long orderId) {
         BigDecimal subtotal = cartItem.getUnitPrice()
                 .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
@@ -134,7 +154,9 @@ public class OrderItem {
                 subtotal,
                 cartItem.getTaxPercentage(),
                 taxAmount,
-                cartItem.getUserId()
+                cartItem.getUserId(),
+                cartItem.getLeadTimeMinDays(),
+                cartItem.getLeadTimeMaxDays()
         );
     }
 
@@ -151,6 +173,8 @@ public class OrderItem {
                 ", taxPercentage=" + taxPercentage +
                 ", taxAmount=" + taxAmount +
                 ", userId=" + userId +
+                ", promisedLeadTimeMinDays=" + promisedLeadTimeMinDays +
+                ", promisedLeadTimeMaxDays=" + promisedLeadTimeMaxDays +
                 '}';
     }
 }

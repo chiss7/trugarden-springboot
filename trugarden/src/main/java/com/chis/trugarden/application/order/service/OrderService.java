@@ -67,6 +67,8 @@ public class OrderService {
         }
 
         Order order = Order.newFromCart(cartMarkedAsOrdered, addressResult.getValue(), payment);
+        int etaMinDays = calculateOrderEtaMinDays(order);
+        int etaMaxDays = calculateOrderEtaMaxDays(order);
         Order savedOrder = orderRepository.save(order);
 
         Result<List<StockReservation>> reservationResult = stockReservationService
@@ -88,9 +90,10 @@ public class OrderService {
         Order orderWithPayment = savedOrder.withUpdatedPayment(paymentWithLink);
         orderRepository.save(orderWithPayment);
 
+        int reservationCount = reservationResult.getValue() == null ? 0 : reservationResult.getValue().size();
         log.info("Order created successfully with id: {} with {} stock reservations",
-                savedOrder.getId(), reservationResult.getValue().size());
-        return Result.success(new CreateOrderResult(orderWithPayment.getId(), result.getPaymentUrl()));
+                savedOrder.getId(), reservationCount);
+        return Result.success(new CreateOrderResult(orderWithPayment.getId(), result.getPaymentUrl(), etaMinDays, etaMaxDays));
     }
 
     private Result<Address> validateOrCreateAddress(Address shippingAddress, boolean isAuthenticated, User user) {
@@ -140,5 +143,25 @@ public class OrderService {
                 .cancellationUrl(payphoneProperties.getCancelUrl())
                 .additionalData(additionalData)
                 .build();
+    }
+
+    private int calculateOrderEtaMinDays(Order order) {
+        if (order == null || order.getOrderItems() == null) {
+            return 0;
+        }
+        return order.getOrderItems().stream()
+                .mapToInt(item -> item.getPromisedLeadTimeMinDays())
+                .max()
+                .orElse(0);
+    }
+
+    private int calculateOrderEtaMaxDays(Order order) {
+        if (order == null || order.getOrderItems() == null) {
+            return 0;
+        }
+        return order.getOrderItems().stream()
+                .mapToInt(item -> item.getPromisedLeadTimeMaxDays())
+                .max()
+                .orElse(0);
     }
 }

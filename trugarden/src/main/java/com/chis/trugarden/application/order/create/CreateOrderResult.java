@@ -2,6 +2,8 @@ package com.chis.trugarden.application.order.create;
 
 public record CreateOrderResult(
         Long orderId,
-        String paymentLink
+        String paymentLink,
+        int etaMinDays,
+        int etaMaxDays
 ) {
 }

@@ -1,5 +1,6 @@
 package com.chis.trugarden.application.product.create;
 
+import com.chis.trugarden.shared.enums.ProductType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -19,6 +20,9 @@ public class CreateProductCommand {
     private BigDecimal unitPrice;
     private String category;
     private int stock;
+    private int leadTimeMinDays;
+    private int leadTimeMaxDays;
+    private ProductType productType;
     private boolean hasIva;
     private int ivaPercentage;
     private List<MultipartFile> images;

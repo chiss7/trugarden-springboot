@@ -2,6 +2,7 @@ package com.chis.trugarden.persistence.product.entities;
 
 import com.chis.trugarden.persistence.category.entities.CategoryEntity;
 import com.chis.trugarden.shared.entity.BaseEntity;
+import com.chis.trugarden.shared.enums.ProductType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +33,10 @@ public class ProductEntity extends BaseEntity {
     private BigDecimal unitPrice;
     private double discountPercentage;
     private double stock;
+    private int leadTimeMinDays;
+    private int leadTimeMaxDays;
+    @Enumerated(EnumType.STRING)
+    private ProductType productType;
     private boolean hasIva;
     private int ivaPercentage;
     private int numRatings;
